@@ -30,7 +30,7 @@ namespace Process.Application
                     dropFile = (e.Data.GetData(DataFormats.FileDrop) as Array)?.GetValue(i)?.ToString();
                     if (dropFile != null && Path.GetExtension(dropFile).ToLower() == ".slk")
                     {
-                        //files.Add(dropFile);
+                        files.Add(dropFile);
                     }
                 }
             }

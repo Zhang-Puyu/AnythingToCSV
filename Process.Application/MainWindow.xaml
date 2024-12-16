@@ -8,8 +8,8 @@
         d:DataContext="{d:DesignInstance vm:MainViewModel}"
         mc:Ignorable="d"
         AllowDrop="True"      
-        FontSize="18"
-        FontFamily="Resource/#得意黑"
+        FontSize="16"
+        FontFamily="Resource/#vivo Sans SC L3"
         Title="SyncProcess" Height="500" Width="500">
     <Grid>
         <Grid.RowDefinitions>
@@ -22,28 +22,28 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Menu Grid.Row="0" Grid.ColumnSpan="2" FontSize="20" FontFamily="Resource/#得意黑">
-            <MenuItem Header="文件" Margin="2">
+        <Menu Grid.Row="0" Grid.ColumnSpan="2" FontSize="16" FontFamily="Resource/#vivo Sans SC L3">
+            <MenuItem Header="文件" Margin="4, 2, 0, 2" VerticalContentAlignment="Center">
                 <MenuItem Header="打开.slk数据文件"     
-                          Margin="2" Command="{Binding ChooseSlkCommand}"/>
+                          Margin="1" Command="{Binding ChooseSlkCommand}"/>
                 <MenuItem Header="打开刀轨数控程序"        
-                          Margin="2" Command="{Binding ChooseNCCodeCommand}"/>
+                          Margin="1" Command="{Binding ChooseNCCodeCommand}"/>
                 <MenuItem Header="打开精雕在机检测报告" 
-                          Margin="2" Command="{Binding ChooseJDReportCommand}"/>
+                          Margin="1" Command="{Binding ChooseJDReportCommand}"/>
                 <MenuItem Header="打开三坐标测量结果"    
-                          Margin="2" Command="{Binding ChooseCMMRxportCommand}"/>
+                          Margin="1" Command="{Binding ChooseCMMRxportCommand}"/>
                 <MenuItem Header="打开在线监测数据"      
-                          Margin="2" Command="{Binding ChooseMonNCCodeCommand}"/>
+                          Margin="1" Command="{Binding ChooseMonNCCodeCommand}"/>
                 <MenuItem Header="打开三维扫描数据"      
-                          Margin="2" Command="{Binding ChooseScan3DDataCommand}"/>
+                          Margin="1" Command="{Binding ChooseScan3DDataCommand}"/>
                 <MenuItem Header="打开Dewesoft采集数据" 
-                          Margin="2" Command="{Binding ChooseDWDataCommand}"/>
+                          Margin="1" Command="{Binding ChooseDWDataCommand}"/>
                 <Separator Margin="3"/>
                 <MenuItem Header="清空列表" Command="{Binding ClearCommand}"/>
             </MenuItem>
-            <MenuItem Header="导出">
-                <MenuItem Header="一个文件导出一个csv" Margin="2" Command="{Binding ExportEachToEachCommand}"/>
-                <MenuItem Header="一个文件导出多个csv" Margin="2" Command="{Binding ExportEachToMultiCommand}"/>
+            <MenuItem Header="导出" Margin="0, 2" VerticalContentAlignment="Center">
+                <MenuItem Header="每个文件导出一个csv" Margin="2" Command="{Binding ExportEachToEachCommand}"/>
+                <MenuItem Header="每个文件导出多个csv" Margin="2" Command="{Binding ExportEachToMultiCommand}"/>
             </MenuItem>
         </Menu>
         <GroupBox Header="文件列表" Grid.Row="1" Grid.Column="0" Margin="5" Grid.ColumnSpan="2">
