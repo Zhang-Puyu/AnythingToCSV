@@ -1,6 +1,6 @@
 # SyncProcess
 
-> 运行环境：.NET 6
+> 运行环境：.NET Framework 4.7.2
 
 批量异步将数据格式转换为.csv
 
