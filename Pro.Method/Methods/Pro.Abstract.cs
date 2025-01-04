@@ -30,8 +30,8 @@ namespace Processor.Methods
         /// <returns>是否被重写</returns>
         private bool IsMethodOverridden(in string methodName)
         {
-            var baseMethod = typeof(AbstractProcessor).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
-            var subMethod = this.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            var baseMethod = typeof(AbstractProcessor).GetMethod(methodName);
+            var subMethod  = this.GetType().GetMethod(methodName);
 
             return baseMethod.DeclaringType != subMethod.DeclaringType;
         }
@@ -45,6 +45,7 @@ namespace Processor.Methods
         /// </summary>
         public bool CanSingleToSingle => IsMethodOverridden(nameof(SingleToSingle));
 
+        #region 列合并CSV
         /// <summary>
         /// 合并多个csv文件
         /// </summary>
@@ -77,6 +78,7 @@ namespace Processor.Methods
                 writer.Close();
             }
         }
+        #endregion
 
         /// <summary>
         /// 将一个源数据文件转换为一个csv文件
