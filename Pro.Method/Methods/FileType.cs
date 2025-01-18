@@ -41,6 +41,10 @@ namespace Processor.Methods
         /// </summary>
         NCCode,
         /// <summary>
+        /// MaxPac生成的cld代码
+        /// </summary>
+        MaxCode,
+        /// <summary>
         /// 不支持的文件类型
         /// </summary>
         Unsurpport,
@@ -48,41 +52,57 @@ namespace Processor.Methods
 
     public static class FileTypeExtensions
     {
+        #region 字典
+        private static readonly Dictionary<FileType, string> FileFilterDic
+            = new Dictionary<FileType, string>
+            {
+                { FileType.Slk,        "SLK矩阵文件 |*.slk;" },
+                { FileType.JDReport,   "精雕在机测量报告 |*_Export.txt;" },
+                { FileType.CMMReport,  "三坐标测量报告 |*.txt;" },
+                { FileType.DWData,     "Dewesoft采集数据 |*.dxd;" },
+                { FileType.MonNCCode,  "在线监测G代码 |*.mon;" },
+                { FileType.NCCode,     "刀轨程序 .nc/.cls/.mpf |*.nc;*.cls;*.mpf;" },
+                { FileType.MaxCode,    "MaxPac生成的带前倾角刀轨 |*.cls;" },
+                { FileType.Scan3DData, "scanCONTROL三维扫描数据 |*.csv;" },
+            };
+
+        private static readonly Dictionary<FileType, AbstractProcessor> ProcesserDic
+            = new Dictionary<FileType, AbstractProcessor>
+            {
+                { FileType.Slk,        ProSlk.Instance },
+                { FileType.JDReport,   ProJDReport.Instance },
+                { FileType.CMMReport,  ProCMMReport.Instance },
+                { FileType.DWData,     ProDWData.Instance },
+                { FileType.MonNCCode,  ProMonNCCode.Instance },
+                { FileType.NCCode,     ProNCCode.Instance },
+                { FileType.MaxCode,    ProMaxCode.Instance },
+                { FileType.Scan3DData, ProScan3DData.Instance },
+            };
+        internal static readonly Dictionary<string, FileType> FileExtensionDic
+            = new Dictionary<string, FileType>
+            {
+                { ".slk",        FileType.Slk },
+                { "_export.txt", FileType.JDReport },
+                { ".txt",        FileType.CMMReport },
+                { ".dxd",        FileType.DWData },
+                { ".mon",        FileType.MonNCCode },
+                { ".nc",         FileType.NCCode },
+                //{ ".cls",        FileType.NCCode },
+                { ".cls",        FileType.MaxCode },
+                { ".mpf",        FileType.NCCode },
+                { ".csv",        FileType.Scan3DData },
+            };
+        #endregion
+
+        public static string[] SurpportedFileExtensions
+            => FileExtensionDic.Keys.ToArray();
+
         /// <summary>
         /// 文件类型对应的文件过滤器
         /// </summary>
         public static string GetFileFilter(this FileType fileType)
         {
-            switch (fileType)
-            {
-                case FileType.Slk:        return "SLK矩阵文件 |*.slk;";
-                case FileType.JDReport:   return "精雕在机测量报告 |*_Export.txt;";
-                case FileType.CMMReport:  return "三坐标测量报告 |*.txt;";
-                case FileType.DWData:     return "Dewesoft采集数据 |*.dxd;";
-                case FileType.MonNCCode:  return "在线监测G代码 |*.mon;";
-                case FileType.NCCode:     return "刀轨程序 .nc/.cls/.mpf |*.nc;*.cls;*.mpf;";
-                case FileType.Scan3DData: return "scanCONTROL三维扫描数据 |*.csv;";
-
-                default: return null;
-            }
-        }
-        /// <summary>
-        /// 根据文件类型选择对应的处理器
-        /// </summary>
-        public static AbstractProcessor ChooseProcesser(this FileType fileType)
-        {
-            switch (fileType)
-            {
-                case FileType.Slk:        return ProSlk.Instance;
-                case FileType.JDReport:   return ProJDReport.Instance;
-                case FileType.CMMReport:  return ProCMMReport.Instance;
-                case FileType.DWData:     return ProDWData.Instance;
-                case FileType.MonNCCode:  return ProMonNCCode.Instance;
-                case FileType.NCCode:     return ProNCCode.Instance;
-                case FileType.Scan3DData: return ProScan3DData.Instance;
-
-                default: return null;
-            }
+            return FileFilterDic.TryGetValue(fileType, out var filter) ? filter : null;
         }
         /// <summary>
         /// 各文件类型的描述
@@ -90,6 +110,22 @@ namespace Processor.Methods
         public static string GetDescription(this FileType fileType)
         {
             return fileType.GetFileFilter().Split('|').First();
+        }
+        /// <summary>
+        /// 获取文件类型对应的文件后缀
+        /// </summary>
+        public static string[] GetFileExtensions(this FileType fileType)
+        {
+            // 遍历FileExtensionDic
+            return FileExtensionDic.Where(kv => kv.Value == fileType).Select(kv => kv.Key).ToArray();
+
+        }
+        /// <summary>
+        /// 根据文件类型选择对应的处理器
+        /// </summary>
+        public static AbstractProcessor ChooseProcesser(this FileType fileType)
+        {
+            return ProcesserDic.TryGetValue(fileType, out var processer) ? processer : null;
         }
 
         #region 文件对话框
@@ -113,34 +149,11 @@ namespace Processor.Methods
                 Filter = fileType.GetFileFilter(),
                 CheckFileExists = true,
             };
-        /// <summary>
-        /// 打开文件夹选择对话框
-        /// </summary>
-        public static CommonOpenFileDialog FolderDialog(this FileType fileType) =>
-            new CommonOpenFileDialog()
-            {
-                IsFolderPicker = true,
-                Title = "请选择要保存路径",
-            };
         #endregion
     }
 
     public static class StringExtensions
     {
-        private static Dictionary<string, FileType> FileTypeDic
-            = new Dictionary<string, FileType>
-        {
-            { ".slk",        FileType.Slk },
-            { "_export.txt", FileType.JDReport },
-            { ".txt",        FileType.CMMReport },
-            { ".dxd",        FileType.DWData },
-            { ".mon",        FileType.MonNCCode },
-            { ".nc",         FileType.NCCode },
-            { ".cls",        FileType.NCCode },
-            { ".mpf",        FileType.NCCode },
-            { ".csv",        FileType.Scan3DData },
-        };
-
         /// <summary>
         /// 判断字符串中是否包含中文
         /// </summary>
@@ -163,7 +176,7 @@ namespace Processor.Methods
             if(file.ToLower().EndsWith("_export.txt")) 
                 return FileType.JDReport;
 
-            return FileTypeDic.TryGetValue(Path.GetExtension(file).ToLower(), out var fileType) ? 
+            return FileTypeExtensions.FileExtensionDic.TryGetValue(Path.GetExtension(file).ToLower(), out var fileType) ? 
                 fileType :
                 FileType.Unsurpport;
         }

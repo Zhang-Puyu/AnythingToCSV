@@ -129,6 +129,7 @@
     <Compile Include="Methods\Pro.NCCode.cs" />
     <Compile Include="Methods\Pro.Scan3DData.cs" />
     <Compile Include="Methods\Pro.Slk.cs" />
+    <Compile Include="Methods\ProMaxCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Register\Register.cs" />
   </ItemGroup>

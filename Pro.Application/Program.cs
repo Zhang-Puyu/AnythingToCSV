@@ -3,7 +3,7 @@ using System;
 
 namespace Processor.Application
 {
-    internal static class Program
+    internal static partial class Program
     {
         /// <summary>
         /// 应用程序的主入口点。
@@ -11,9 +11,16 @@ namespace Processor.Application
         [STAThread]
         static void Main(string[] args)
         {
-            System.Windows.Forms.Application.EnableVisualStyles();
-            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
-            System.Windows.Forms.Application.Run(new MainForm(args));
+            if (args.Length > 0)
+            {
+                ProcessUnknownTypeFiles(args);
+            }
+            else
+            {
+                System.Windows.Forms.Application.EnableVisualStyles();
+                System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+                System.Windows.Forms.Application.Run(new MainForm());
+            }
         }
     }
 }

@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Threading;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Processor.Methods;
 using MessageBox = System.Windows.MessageBox;
@@ -42,14 +40,12 @@ namespace Processor.Application
         private AbstractProcessor   Processor    { get; set; } = null;
         private FileType            LastFileType { get; set; } = FileType.Unsurpport;
 
-        public MainForm(string[] args)
+        public MainForm()
         {
             InitializeComponent();
 
-            _itemEachToSingle.Tag = ExportModel.ToSingle;
-            _itemEachToMulti.Tag  = ExportModel.ToMulti;
-
-            // 遍历FileType枚举类型，添加到<导入>菜单
+            #region <导入>菜单
+            // 遍历FileType枚举类型, 将类型对应的导入选项添加到<导入>菜单
             foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
             {
                 if (fileType.ChooseProcesser() != null)
@@ -58,16 +54,64 @@ namespace Processor.Application
                     itemImport.Click += ItemImport_Click;
                     itemImport.Tag = fileType;
                     _menuImport.DropDownItems.Add(itemImport);
+
+                    // 添加提示信息
+                    itemImport.ToolTipText = string.Join("/", fileType.GetFileExtensions());
+                    itemImport.AutoToolTip = true;
                 }
             }
+
             // 添加分隔符
             _menuImport.DropDownItems.Add(new ToolStripSeparator());
             // 添加清空菜单项
             var itemClear = new ToolStripMenuItem("清空");
             itemClear.Click += ItemClear_Click;
             _menuImport.DropDownItems.Add(itemClear);
+            #endregion
 
-            AddUnknownTypeFiles(args);
+            #region <导出>菜单
+            _itemEachToSingle.Tag = ExportModel.ToSingle;
+            _itemEachToMulti.Tag  = ExportModel.ToMulti;
+            #endregion
+
+            #region <注册>菜单
+            foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
+            {
+                if (fileType!= FileType.Unsurpport)
+                {
+                    var itemRegister = new ToolStripMenuItem(fileType.GetDescription());
+                    var itemUnregister = new ToolStripMenuItem(fileType.GetDescription());
+                    itemRegister.Click += ItemRegister_Click;
+                    itemUnregister.Click += ItemUnregister_Click;
+                    itemRegister.Tag = fileType;
+                    itemUnregister.Tag = fileType;
+
+                    // 添加提示信息
+                    itemRegister.ToolTipText = string.Join("/", fileType.GetFileExtensions());
+                    itemRegister.AutoToolTip = true;
+                    itemUnregister.ToolTipText = string.Join("/", fileType.GetFileExtensions());
+                    itemUnregister.AutoToolTip = true;
+
+                    _itemRegister.DropDownItems.Add(itemRegister);
+                    _itemUnregister.DropDownItems.Add(itemUnregister);
+                }
+            }
+
+            _itemRegister.DropDownItems.Add(new ToolStripSeparator());
+            _itemUnregister.DropDownItems.Add(new ToolStripSeparator());
+
+            var itemRegisterAny = new ToolStripMenuItem("注册到任意文件类型的右键菜单");
+            itemRegisterAny.Click += ItemRegister_Click;
+            _itemRegister.DropDownItems.Add(itemRegisterAny);
+
+            var itemUnregisterAny = new ToolStripMenuItem("注册到任意文件类型的右键菜单");
+            itemUnregisterAny.Click += ItemUnregister_Click;
+            _itemUnregister.DropDownItems.Add(itemUnregisterAny);
+
+            Register.InfoMsgEvent += msg => MessageBox.Show(msg, "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            Register.ErrorMsgEvent += msg => MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            #endregion
         }
 
         #region 文件处理进度事件
@@ -115,8 +159,10 @@ namespace Processor.Application
                         Processor.ProcessStartedEvent = ProcessStartedHandler;
                         Processor.ProcessFinishedEvent = ProcessFinishedHandler;
 
-                        Processor.InfoMsgEvent = msg => Debug.WriteLine(msg);
-                        Processor.ErrorMsgEvent = msg => MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Processor.InfoMsgEvent = 
+                            msg => Debug.WriteLine(msg);
+                        Processor.ErrorMsgEvent = 
+                            msg => MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
 
                         _itemEachToMulti.Enabled = Processor.CanSingleToMulti;
                         _itemEachToSingle.Enabled = Processor.CanSingleToSingle;
@@ -135,7 +181,7 @@ namespace Processor.Application
         }
         #endregion
 
-        #region 菜单按钮点击事件
+        #region 导入/导出菜单按钮点击事件
         private void ItemImport_Click(object sender, EventArgs e)
         {
             FileType CurrFileType = (FileType)(sender as ToolStripMenuItem).Tag;
@@ -170,7 +216,11 @@ namespace Processor.Application
 
         private void ItemExport_Click(object sender, EventArgs e)
         {
-            var dialog = LastFileType.FolderDialog();
+            var dialog = new CommonOpenFileDialog()
+            {
+                IsFolderPicker = true,
+                Title = "请选择要保存路径",
+            };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 Task task = null;
@@ -253,22 +303,24 @@ namespace Processor.Application
         /// <summary>
         /// 注册表项名称
         /// </summary>
-        private static readonly string keyName = "ProcesseToCsv";
+        private static readonly string KeyName = "ProcesseToCsv";
         /// <summary>
         /// 右键菜单中命令名称
         /// </summary>
-        private static readonly string cmdName = "转换为csv";
-
+        private static readonly string CmdName = "转换为csv";
         /// <summary>
-        /// 将程序注册到右键菜单(需要管理员权限)
+        /// 程序路径
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ItemAddToContextMenu_Click(object sender, EventArgs e)
+        private static string ExePath => System.Windows.Forms.Application.ExecutablePath;
+        /// <summary>
+        /// 尝试获取管理员权限
+        /// </summary>
+        private void TryGetAdminAuthority()
         {
-            if (!Register.IsAdministrator())
+            if (!Register.HasAdminAuthority())
             {
-                MessageBox.Show("需要管理员权限，请软件重启后重新操作");
+                MessageBox.Show("需要管理员权限，请软件重启后重新操作", "提示", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
                 // 重新启动应用程序并请求管理员权限
                 var processInfo = new ProcessStartInfo
                 {
@@ -276,60 +328,47 @@ namespace Processor.Application
                     FileName = System.Windows.Forms.Application.ExecutablePath,
                     Verb = "runas" // 请求管理员权限
                 };
-
                 try
                 {
                     System.Diagnostics.Process.Start(processInfo);
                 }
                 catch (Exception) // 用户拒绝了管理员权限请求
                 {
-                    MessageBox.Show("注册表修改失败，无管理员权限");
+                    MessageBox.Show("注册表修改失败，无管理员权限", "错误", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-
                 System.Windows.Forms.Application.Exit();
-                return;
             }
+        }
 
-            // 窗口应用程序的路径
-            string formExePath = System.Windows.Forms.Application.ExecutablePath;
-            // 命令行程序的路径
-            string cmdExePath = Path.Combine(Path.GetDirectoryName(formExePath), "Pro.Command.exe");
-            Register.RegisterToContextMenu(keyName, cmdName, cmdExePath);
+        /// <summary>
+        /// 将程序注册到右键菜单(需要管理员权限)
+        /// </summary>
+        private void ItemRegister_Click(object sender, EventArgs e)
+        {
+            TryGetAdminAuthority();
+
+            object tag = (FileType)((sender as ToolStripMenuItem).Tag);
+            if (tag != null)
+                foreach (string extension in ((FileType)tag).GetFileExtensions())
+                    Register.AddToContextMenu(KeyName, CmdName, ExePath, extension);
+            else
+                Register.AddToContextMenu(KeyName, CmdName, ExePath);
         }
 
         /// <summary>
         /// 从右键菜单移除(需要管理员权限)
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ItemRemoveFromContextMenu_Click(object sender, EventArgs e)
+        private void ItemUnregister_Click(object sender, EventArgs e)
         {
-            if (!Register.IsAdministrator())
-            {
-                MessageBox.Show("需要管理员权限，请软件重启后重新操作");
-                // 重新启动应用程序并请求管理员权限
-                var processInfo = new ProcessStartInfo
-                {
-                    UseShellExecute = true,
-                    FileName = System.Windows.Forms.Application.ExecutablePath,
-                    Verb = "runas" // 请求管理员权限
-                };
+            TryGetAdminAuthority();
 
-                try
-                {
-                    System.Diagnostics.Process.Start(processInfo);
-                }
-                catch (Exception)
-                {
-                    // 用户拒绝了管理员权限请求
-                    MessageBox.Show("注册表修改失败，无管理员权限");
-                }
-
-                System.Windows.Forms.Application.Exit();
-                return;
-            }
-
-            Register.RemoveFromContextMenu(keyName);
+            object tag = (sender as ToolStripMenuItem).Tag;
+            if (tag != null)
+                foreach (string extension in ((FileType)tag).GetFileExtensions())
+                    Register.RemoveFromContextMenu(KeyName, extension);
+            else
+                Register.RemoveFromContextMenu(KeyName);
         }
         #endregion
     }

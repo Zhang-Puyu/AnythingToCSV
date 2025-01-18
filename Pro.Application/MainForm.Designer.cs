@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this._menuImport = new System.Windows.Forms.ToolStripMenuItem();
             this._menuExport = new System.Windows.Forms.ToolStripMenuItem();
@@ -35,11 +36,12 @@
             this._itemEachToMulti = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStrip = new System.Windows.Forms.MenuStrip();
             this._menuRegister = new System.Windows.Forms.ToolStripMenuItem();
-            this._itemAddToMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this._itemRemoveFromMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this._itemRegister = new System.Windows.Forms.ToolStripMenuItem();
+            this._itemUnregister = new System.Windows.Forms.ToolStripMenuItem();
             this._tableFiles = new System.Windows.Forms.DataGridView();
             this.colFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colProgress = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._toolTip = new System.Windows.Forms.ToolTip(this.components);
             this._menuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._tableFiles)).BeginInit();
             this.SuspendLayout();
@@ -90,25 +92,23 @@
             // _menuRegister
             // 
             this._menuRegister.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._itemAddToMenu,
-            this._itemRemoveFromMenu});
+            this._itemRegister,
+            this._itemUnregister});
             this._menuRegister.Name = "_menuRegister";
             this._menuRegister.Size = new System.Drawing.Size(44, 21);
             this._menuRegister.Text = "注册";
             // 
-            // _itemAddToMenu
+            // _itemRegister
             // 
-            this._itemAddToMenu.Name = "_itemAddToMenu";
-            this._itemAddToMenu.Size = new System.Drawing.Size(184, 22);
-            this._itemAddToMenu.Text = "添加到文件右键菜单";
-            this._itemAddToMenu.Click += new System.EventHandler(this.ItemAddToContextMenu_Click);
+            this._itemRegister.Name = "_itemRegister";
+            this._itemRegister.Size = new System.Drawing.Size(160, 22);
+            this._itemRegister.Text = "注册到右键菜单";
             // 
-            // _itemRemoveFromMenu
+            // _itemUnregister
             // 
-            this._itemRemoveFromMenu.Name = "_itemRemoveFromMenu";
-            this._itemRemoveFromMenu.Size = new System.Drawing.Size(184, 22);
-            this._itemRemoveFromMenu.Text = "从文件右键菜单移除";
-            this._itemRemoveFromMenu.Click += new System.EventHandler(this.ItemRemoveFromContextMenu_Click);
+            this._itemUnregister.Name = "_itemUnregister";
+            this._itemUnregister.Size = new System.Drawing.Size(160, 22);
+            this._itemUnregister.Text = "从右键菜单移除";
             // 
             // _tableFiles
             // 
@@ -180,10 +180,11 @@
         private System.Windows.Forms.ToolStripMenuItem _itemEachToSingle;
         private System.Windows.Forms.DataGridView _tableFiles;
         private System.Windows.Forms.ToolStripMenuItem _menuRegister;
-        private System.Windows.Forms.ToolStripMenuItem _itemAddToMenu;
-        private System.Windows.Forms.ToolStripMenuItem _itemRemoveFromMenu;
+        private System.Windows.Forms.ToolStripMenuItem _itemRegister;
+        private System.Windows.Forms.ToolStripMenuItem _itemUnregister;
         private System.Windows.Forms.DataGridViewTextBoxColumn colFileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colProgress;
+        private System.Windows.Forms.ToolTip _toolTip;
     }
 }
 

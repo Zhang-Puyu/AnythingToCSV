@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using Processor.Methods;
 
-namespace Processor.Command
+namespace Processor.Application
 {
-    internal class Program
+    internal static partial class Program
     {
-        static void Main(string[] args)
+        public static void ProcessUnknownTypeFiles(in IEnumerable<string> args)
         {
-            FileType     fileType = FileType.Unsurpport;
-            List<string> files    = new List<string>();
+            FileType fileType = FileType.Unsurpport;
+            List<string> files = new List<string>();
 
             // 获取文件类型
             foreach (string file in args)
@@ -31,14 +31,15 @@ namespace Processor.Command
                         files.Add(file);
 
                 // 根据文件类型选择处理器
-                var Processor = fileType.ChooseProcesser();
+                var processor = fileType.ChooseProcesser();
                 string folder = Path.GetDirectoryName(files.First());
 
                 // 异步处理文件
-                Processor.EachToEach(files, folder).Wait();
+                processor.EachToEach(files, folder).Wait();
 
                 // 在处理完成后打印处理的文件名
-                Console.WriteLine($"处理完成：{string.Join("\n", files)}");
+                MessageBox.Show($"处理完成：\n{string.Join("\n", files.Select(path => Path.GetFileName(path)))}",
+                    "提示", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }

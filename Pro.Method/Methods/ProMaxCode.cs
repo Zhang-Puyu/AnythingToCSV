@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,9 +8,8 @@ namespace Processor.Methods
     /// <summary>
     /// 刀位点
     /// </summary>
-    internal struct Point
+    internal struct MaxPoint
     {
-        #region 字段
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
@@ -26,23 +24,33 @@ namespace Processor.Methods
         /// 转速
         /// </summary>
         public float S { get; set; }
-        #endregion
 
-        #region 初始化
-        public Point(in Point point)
+        /// <summary>
+        /// 前倾角
+        /// </summary>
+        public float DRAG { get; set; }
+        /// <summary>
+        /// 无效的前倾角
+        /// </summary>
+        public static readonly float InvalidDrag = 181;
+
+        /// <summary>
+        /// 拷贝构造函数
+        /// </summary>
+        public MaxPoint(in MaxPoint point)
         {
-            X = point.X; Y = point.Y; Z = point.Z; 
-            A = point.A; B = point.B; C = point.C; 
-            F = point.F; S = point.S; 
+            X = point.X; Y = point.Y; Z = point.Z;
+            A = point.A; B = point.B; C = point.C;
+            F = point.F; S = point.S;
+            DRAG = point.DRAG;
         }
-
         /// <summary>
         /// 随机生成一个刀位点，进给和转速为0
         /// </summary>
-        public static Point RandomPostionPoint()
+        public static MaxPoint RandomPostionPoint()
         {
             Random random = new Random();
-            return new Point
+            return new MaxPoint
             {
                 X = (float)random.NextDouble() * 550 - 100,
                 Y = (float)random.NextDouble() * 550 - 100,
@@ -52,66 +60,62 @@ namespace Processor.Methods
                 C = (float)random.NextDouble() * 550 - 100,
                 F = 0,
                 S = 0,
+                DRAG = InvalidDrag,
             };
         }
         /// <summary>
         /// 原点刀位点，进给和转速为0
         /// </summary>
-        public static Point OrignalPostionPoint()
+        public static MaxPoint OrignalPostionPoint()
         {
-            return new Point
+            return new MaxPoint
             {
                 X = 0, Y = 0, Z = 0,
                 A = 0, B = 0, C = 0,
                 F = 0, S = 0,
+                DRAG = InvalidDrag
             };
         }
-        #endregion
 
         public override string ToString()
         {
-            // 遍历结构体的所有字段
-            // return string.Join(",", this.GetType().GetFields().Select(f => f.GetValue(this)));
-            return $"{X},{Y},{Z},{A},{B},{C},{F},{S}";
+            return $"{X},{Y},{Z},{A},{B},{C},{F},{S},{DRAG}";
         }
 
-        public static bool operator ==(in Point left, in Point right)
+        public static bool operator ==(in MaxPoint left, in MaxPoint right)
         {
             return left.X == right.X && left.Y == right.Y && left.Z == right.Z &&
-                    left.A == right.A && left.B == right.B && left.C == right.C;
+                    left.A == right.A && left.B == right.B && left.C == right.C &&
+                    left.DRAG == right.DRAG;
         }
-        public static bool operator !=(in Point left, in Point right)
+        public static bool operator !=(in MaxPoint left, in MaxPoint right)
         {
             return !(left == right);
         }
     }
 
     /// <summary>
-    /// 解析一行代码委托
+    /// 处理MaxPac生成的cls刀轨文件
     /// </summary>
-    /// <param name="line">一行代码</param>
-    /// <param name="point">解析得到的刀位点</param>
-    internal delegate void ParaseLineDelegate(in string line, ref Point point);
-
-    public class ProNCCode : AbstractProcessor
+    public class ProMaxCode : AbstractProcessor
     {
         #region 单例模式
-        private static ProNCCode instance = null;
+        private static ProMaxCode instance = null;
         private static readonly object padlock = new object();
-        public static ProNCCode Instance
+        public static ProMaxCode Instance
         {
             get
             {
                 lock (padlock)
                 {
                     if (instance == null)
-                        instance = new ProNCCode();
+                        instance = new ProMaxCode();
                     return instance;
                 }
             }
         }
 
-        private ProNCCode() {}
+        private ProMaxCode() { }
         #endregion
 
         /// <summary>
@@ -119,46 +123,23 @@ namespace Processor.Methods
         /// </summary>
         public float RapidFeed { get; set; } = 6000;
 
-        /// <summary>
-        /// 解析一行代码委托
-        /// </summary>
-        private ParaseLineDelegate ParaseLine;
-
         public override void SingleToSingle(string orifile, string csvfile)
         {
-            string extension = Path.GetExtension(orifile).ToLower();
-            string head      = string.Empty;
-            if (extension == ".nc" || extension == ".mpf")
-            {
-                head = "x,y,z,a,b,c,f,s";
-                ParaseLine = ParaseGCodeLine;
-            }
-            if (extension == ".cls")
-            {
-                head = "x,y,z,i,j,k,f,s";
-                ParaseLine = ParaseAptLine;
-            }
-            else
-            {
-                ErrorMsgEvent?.Invoke("不支持的文件格式");
-                return;
-            }
-
             using (StreamReader reader = new StreamReader(orifile))
             {
                 using (StreamWriter writer = new StreamWriter(csvfile))
                 {
-                    writer.WriteLine(head);
+                    writer.WriteLine("x,y,z,i,j,k,f,s,drag");
 
                     string line = null;
-                    Point lastPoint = new Point();
+                    MaxPoint lastPoint = new MaxPoint();
                     while ((line = reader.ReadLine()) != null)
                     {
-                        Point currPoint = new Point(lastPoint);
-                        ParaseLine(line, ref currPoint);
+                        MaxPoint currPoint = new MaxPoint(lastPoint);
+                        ParaseAptLine(line, ref currPoint);
                         if (currPoint != lastPoint)
                             writer.WriteLine(currPoint.ToString());
-                        lastPoint = new Point(currPoint);
+                        lastPoint = new MaxPoint(currPoint);
                     }
                     writer.Close();
                 }
@@ -166,50 +147,16 @@ namespace Processor.Methods
             }
         }
 
-        #region G代码(.nc/.mpf)解析
-        private readonly Regex GCodeRegex = new Regex(@"(([A-Z])(-?\d+(\.\d+)?|\.\d+))");
-        internal void ParaseGCodeLine(in string line, ref Point point)
-        {
-            Dictionary<char, float> map = new Dictionary<char, float>();
-            MatchCollection matches = GCodeRegex.Matches(line);
-
-            foreach (Match match in matches)
-            {
-                if (match.Groups.Count > 2)
-                {
-                    char letter = match.Groups[2].Value[0];
-                    string number = match.Groups[3].Value;
-
-                    if (letter == 'G' && float.Parse(number) == 0)
-                        map['F'] = RapidFeed;
-                    else
-                        map[letter] = float.Parse(number);
-                }
-            }
-
-            if (map.ContainsKey('X')) point.X = map['X'];
-            if (map.ContainsKey('A')) point.A = map['A'];
-            if (map.ContainsKey('Y')) point.Y = map['Y'];
-            if (map.ContainsKey('B')) point.B = map['B'];
-            if (map.ContainsKey('Z')) point.Z = map['Z'];
-            if (map.ContainsKey('C')) point.C = map['C'];
-            if (map.ContainsKey('F')) point.F = map['F'];
-            if (map.ContainsKey('S')) point.S = map['S'];
-
-            //if (map.StartsWithKey('T')) toolNo = (uint)map['T'];
-            //if (map.StartsWithKey('H')) toolOffset = (uint)map['H'];
-        }
-        #endregion
-
-        #region apt语言(.cls)解析
-        private void ParaseAptLine(in string line, ref Point point)
+        private readonly string dragPattern = @"DRAG=\s*(-?\d+(\.\d+)?)";
+        private Match dragMatch;
+        private void ParaseAptLine(in string line, ref MaxPoint point)
         {
             if (line.StartsWith("RAPID"))
             {
                 point.F = RapidFeed;
                 return;
             }
-            // GOTO/108.4843,-280.0770,-19.5434,0.380709,-0.921682,0.074586 $$PT2
+            // GOTO/108.4843,-280.0770,-19.5434,0.380709,-0.921682,0.074586 $$PT2 DRAG=-90.0
             if (line.StartsWith("GOTO/"))
             {
                 string[] s = line.Replace("GOTO/", "").Split(',');
@@ -222,6 +169,10 @@ namespace Processor.Methods
                     point.A = float.Parse(s[3]);
                     point.B = float.Parse(s[4]);
                     point.C = float.Parse(s[5].Split(' ')[0]);
+
+                    // 读取DRAG
+                    dragMatch = Regex.Match(line, dragPattern);
+                    point.DRAG = dragMatch.Success ? float.Parse(dragMatch.Groups[1].Value) : MaxPoint.InvalidDrag;
                 }
                 catch { }
                 return;
@@ -244,6 +195,5 @@ namespace Processor.Methods
                 return;
             }
         }
-        #endregion
     }
 }

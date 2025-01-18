@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Processor.Methods
 {
@@ -19,8 +17,13 @@ namespace Processor.Methods
         /// 一个源数据文件处理完成时触发的事件
         /// </summary>
         public Action<string> ProcessFinishedEvent { get; set; } = null;
-
+        /// <summary>
+        /// 错误消息事件
+        /// </summary>
         public Action<string> ErrorMsgEvent { get; set; } = null;
+        /// <summary>
+        /// 信息消息事件
+        /// </summary>
         public Action<string> InfoMsgEvent { get; set; } = null;
 
         /// <summary>
@@ -45,7 +48,7 @@ namespace Processor.Methods
         /// </summary>
         public bool CanSingleToSingle => IsMethodOverridden(nameof(SingleToSingle));
 
-        #region 列合并CSV
+        #region 合并CSV
         /// <summary>
         /// 合并多个csv文件
         /// </summary>
