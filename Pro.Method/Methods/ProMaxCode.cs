@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace Processor.Methods
 {
     /// <summary>
-    /// 刀位点
+    /// 带前倾角刀位点
     /// </summary>
     internal struct MaxPoint
     {

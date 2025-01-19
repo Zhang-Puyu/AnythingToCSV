@@ -22,15 +22,21 @@
    
    `*.mon`
    
-5. 三坐标测量结果
-   
+5. MaxPac生成的带前倾角刀轨程序
+
+   `*.cls`
+
+6. 三坐标测量结果
+
    `*.txt`
-   
-6. scanCONTROL三维扫描数据
-   
+
+7. scanCONTROL三维扫描数据
+
    `*.csv`
-   
-7. Dewesoft采集数据（需要已经安装DewesoftX）
+
+8. Dewesoft采集数据（需要已经安装DewesoftX）
 
    `*.dxd`
+
+   
 
