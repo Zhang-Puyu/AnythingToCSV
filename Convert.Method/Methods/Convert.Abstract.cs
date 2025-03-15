@@ -121,7 +121,7 @@ namespace Convert.Methods
         /// <param name="skipFirstRow">合并时是否跳过第一行</param>
         public static void MergeCsv(in IEnumerable<string> oriFiles, string tarFile, bool skipFirstRow = false)
         {
-            using (StreamWriter writer = new StreamWriter(tarFile))
+            using (StreamWriter writer = new StreamWriter(tarFile.RenameIfFileExists()))
             {
                 if (skipFirstRow)
                 {

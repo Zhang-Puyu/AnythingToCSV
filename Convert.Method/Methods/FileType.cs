@@ -114,8 +114,9 @@ namespace Convert.Methods
         /// </summary>
         public static string[] GetFileExtensions(this FileType fileType)
         {
-            // 遍历FileExtensionDic
-            return FileExtensionDic.Where(kv => kv.Value == fileType).Select(kv => kv.Key).ToArray();
+            return FileExtensionDic
+                .Where(kv => kv.Value == fileType)
+                .Select(kv => kv.Key).ToArray();
 
         }
         /// <summary>
