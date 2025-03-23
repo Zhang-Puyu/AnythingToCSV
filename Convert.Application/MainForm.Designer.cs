@@ -29,11 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this._menuImport = new System.Windows.Forms.ToolStripMenuItem();
             this._menuExport = new System.Windows.Forms.ToolStripMenuItem();
             this._itemEachToSingle = new System.Windows.Forms.ToolStripMenuItem();
             this._itemEachToMulti = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this._itemMergeCsvRows = new System.Windows.Forms.ToolStripMenuItem();
+            this._itemMergeCsvColums = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStrip = new System.Windows.Forms.MenuStrip();
             this._menuEncoding = new System.Windows.Forms.ToolStripMenuItem();
             this._itemReadEncoding = new System.Windows.Forms.ToolStripMenuItem();
@@ -59,13 +62,17 @@
             // 
             this._menuExport.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._itemEachToSingle,
-            this._itemEachToMulti});
+            this._itemEachToMulti,
+            this.toolStripSeparator1,
+            this._itemMergeCsvRows,
+            this._itemMergeCsvColums});
             this._menuExport.Name = "_menuExport";
             this._menuExport.Size = new System.Drawing.Size(44, 21);
             this._menuExport.Text = "导出";
             // 
             // _itemEachToSingle
             // 
+            this._itemEachToSingle.Enabled = false;
             this._itemEachToSingle.Name = "_itemEachToSingle";
             this._itemEachToSingle.Size = new System.Drawing.Size(207, 22);
             this._itemEachToSingle.Text = "每个文件导出为一个CSV";
@@ -73,10 +80,32 @@
             // 
             // _itemEachToMulti
             // 
+            this._itemEachToMulti.Enabled = false;
             this._itemEachToMulti.Name = "_itemEachToMulti";
             this._itemEachToMulti.Size = new System.Drawing.Size(207, 22);
             this._itemEachToMulti.Text = "每个文件分解为多个CSV";
             this._itemEachToMulti.Click += new System.EventHandler(this.ItemExport_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(204, 6);
+            // 
+            // _itemMergeCsvRows
+            // 
+            this._itemMergeCsvRows.Enabled = false;
+            this._itemMergeCsvRows.Name = "_itemMergeCsvRows";
+            this._itemMergeCsvRows.Size = new System.Drawing.Size(207, 22);
+            this._itemMergeCsvRows.Text = "按行合并csv";
+            this._itemMergeCsvRows.Click += new System.EventHandler(this.ItemExportMergedCsv_Click);
+            // 
+            // _itemMergeCsvColums
+            // 
+            this._itemMergeCsvColums.Enabled = false;
+            this._itemMergeCsvColums.Name = "_itemMergeCsvColums";
+            this._itemMergeCsvColums.Size = new System.Drawing.Size(207, 22);
+            this._itemMergeCsvColums.Text = "按列合并csv";
+            this._itemMergeCsvColums.Click += new System.EventHandler(this.ItemExportMergedCsv_Click);
             // 
             // _menuStrip
             // 
@@ -108,35 +137,38 @@
             this._itemReadEncoding.BackColor = System.Drawing.SystemColors.Control;
             this._itemReadEncoding.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this._itemReadEncoding.Name = "_itemReadEncoding";
-            this._itemReadEncoding.Size = new System.Drawing.Size(180, 22);
+            this._itemReadEncoding.Size = new System.Drawing.Size(181, 22);
             this._itemReadEncoding.Text = "读取";
             // 
             // _itemWriteEncoding
             // 
             this._itemWriteEncoding.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this._itemWriteEncoding.Name = "_itemWriteEncoding";
-            this._itemWriteEncoding.Size = new System.Drawing.Size(180, 22);
+            this._itemWriteEncoding.Size = new System.Drawing.Size(181, 22);
             this._itemWriteEncoding.Text = "写入";
             // 
             // _menuRegister
             // 
+            this._menuRegister.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this._menuRegister.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this._menuRegister.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._itemRegister,
             this._itemUnregister});
             this._menuRegister.Name = "_menuRegister";
+            this._menuRegister.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._menuRegister.Size = new System.Drawing.Size(44, 21);
             this._menuRegister.Text = "注册";
             // 
             // _itemRegister
             // 
             this._itemRegister.Name = "_itemRegister";
-            this._itemRegister.Size = new System.Drawing.Size(160, 22);
+            this._itemRegister.Size = new System.Drawing.Size(180, 22);
             this._itemRegister.Text = "注册到右键菜单";
             // 
             // _itemUnregister
             // 
             this._itemUnregister.Name = "_itemUnregister";
-            this._itemUnregister.Size = new System.Drawing.Size(160, 22);
+            this._itemUnregister.Size = new System.Drawing.Size(180, 22);
             this._itemUnregister.Text = "从右键菜单移除";
             // 
             // _tableFiles
@@ -161,13 +193,15 @@
             this._tableFiles.Size = new System.Drawing.Size(471, 282);
             this._tableFiles.TabIndex = 1;
             this._tableFiles.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.TableFiles_RowPostPaint);
+            this._tableFiles.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.RowsAdded);
+            this._tableFiles.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.RowsRemoved);
             this._tableFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
             this._tableFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
             // 
             // colFileName
             // 
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            this.colFileName.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            this.colFileName.DefaultCellStyle = dataGridViewCellStyle4;
             this.colFileName.FillWeight = 89.08628F;
             this.colFileName.HeaderText = "文件名";
             this.colFileName.Name = "colFileName";
@@ -220,6 +254,9 @@
         private System.Windows.Forms.ToolStripMenuItem _menuEncoding;
         private System.Windows.Forms.ToolStripMenuItem _itemReadEncoding;
         private System.Windows.Forms.ToolStripMenuItem _itemWriteEncoding;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem _itemMergeCsvRows;
+        private System.Windows.Forms.ToolStripMenuItem _itemMergeCsvColums;
     }
 }
 

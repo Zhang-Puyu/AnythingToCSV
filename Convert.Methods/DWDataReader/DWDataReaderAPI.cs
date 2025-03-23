@@ -2,7 +2,7 @@
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace Convert.Method.DWDataReader.API
+namespace Convert.Methods.DWDataReader.API
 {
     public class DWDataReaderAPI
     {

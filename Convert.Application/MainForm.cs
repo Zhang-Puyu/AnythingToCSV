@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using Convert.Methods;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using MessageBox = System.Windows.MessageBox;
-using System.Text;
 
 namespace Convert.Application
 {
@@ -29,27 +29,83 @@ namespace Convert.Application
         /// <summary>
         /// 导出为单个文件
         /// </summary>
-        ToSingle, 
+        ToSingle,
         /// <summary>
         /// 分解导出为多个文件
         /// </summary>
         ToMulti
     }
 
+    /// <summary>
+    /// csv合并模式
+    /// </summary>
+    internal enum MergeModel
+    {
+        /// <summary>
+        /// 合并行
+        /// </summary>
+        MergeRows,
+        /// <summary>
+        /// 合并列
+        /// </summary>
+        MergeColumns
+    }
+
+
     public partial class MainForm : Form
     {
-        private AbstractConverter Converter = null;
-        private FileType LastFileType = FileType.Unsurpport;
+        private AbstractConverter converter = null;
+        private AbstractConverter Converter
+        {
+            get => converter;
+            set
+            {
+                converter = value;
+                if (converter != null)
+                {
+                    converter.StartedEvent = ConvertStartedHandler;
+                    converter.FinishedEvent = ConvertFinishedHandler;
+
+                    converter.InfoMsgEvent =
+                        msg => Debug.WriteLine(msg);
+                    converter.ErrorMsgEvent =
+                        msg => MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    converter.ReadEncoding = ReadEncoding;
+                    converter.WriteEncoding = WriteEncoding;
+                }
+            }
+        }
+
+        private FileType fileType = FileType.Unsurpport;
+        private FileType FileType 
+        {
+            get => fileType;
+            set
+            {
+                if (fileType != value)
+                {
+                    _tableFiles.Rows.Clear();
+
+                    fileType = value;
+                    Converter = fileType.GetConverter();
+                }
+            }
+        }
 
         public MainForm()
         {
             InitializeComponent();
 
+            Converter = null;
+            FileType = FileType.Unsurpport;
+
             #region <导入>菜单
             // 遍历FileType枚举类型, 将类型对应的导入选项添加到<导入>菜单
+
             foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
             {
-                if (fileType.ChooseConverter() != null)
+                if (fileType.GetConverter() != null && fileType != FileType.MergeCsv)
                 {
                     var itemImport = new ToolStripMenuItem(fileType.GetDescription());
                     itemImport.Click += ItemImport_Click;
@@ -64,18 +120,26 @@ namespace Convert.Application
 
             // 添加分隔符
             _menuImport.DropDownItems.Add(new ToolStripSeparator());
+            // 添加合并csv项
+            var itemImportMergedCsv = new ToolStripMenuItem("合并csv");
+            itemImportMergedCsv.Click += ItemImportMergedCsv_Click;
+            _menuImport.DropDownItems.Add(itemImportMergedCsv);
+
+            // 添加分隔符
+            _menuImport.DropDownItems.Add(new ToolStripSeparator());
             // 添加清空菜单项
             var itemClear = new ToolStripMenuItem("清空");
             itemClear.Click += ItemClear_Click;
             _menuImport.DropDownItems.Add(itemClear);
+
             #endregion
 
             #region <导出>菜单
             _itemEachToSingle.Tag = ExportModel.ToSingle;
             _itemEachToMulti.Tag  = ExportModel.ToMulti;
 
-            _itemEachToSingle.Enabled = false;
-            _itemEachToMulti.Enabled = false;
+            _itemMergeCsvColums.Tag = MergeModel.MergeColumns;
+            _itemMergeCsvRows.Tag = MergeModel.MergeRows;
             #endregion
 
             #region <编码格式>菜单 
@@ -99,7 +163,7 @@ namespace Convert.Application
                     encoding == WriteEncoding ? 
                     System.Drawing.SystemColors.GradientActiveCaption 
                     : System.Drawing.SystemColors.Control;
-            }   
+            }
             #endregion
 
             #region <注册>菜单
@@ -132,7 +196,7 @@ namespace Convert.Application
             itemRegisterAny.Click += ItemRegister_Click;
             _itemRegister.DropDownItems.Add(itemRegisterAny);
 
-            var itemUnregisterAny = new ToolStripMenuItem("注册到任意文件类型的右键菜单");
+            var itemUnregisterAny = new ToolStripMenuItem("移除任意文件类型的右键菜单");
             itemUnregisterAny.Click += ItemUnregister_Click;
             _itemUnregister.DropDownItems.Add(itemUnregisterAny);
 
@@ -142,7 +206,7 @@ namespace Convert.Application
             #endregion
         }
 
-        #region 文件编码格式
+        #region 修改读/写编码格式
         private Encoding ReadEncoding = Encoding.GetEncoding("GBK");
         private Encoding WriteEncoding = Encoding.UTF8;
 
@@ -171,9 +235,14 @@ namespace Convert.Application
         }
         #endregion
 
+        #region 获取添加的文件
+        private IEnumerable<string> Files => _tableFiles.Rows.Cast<DataGridViewRow>()
+                    .Select(r => r.Cells[0].Value.ToString());
+        #endregion
+
         #region 文件处理进度事件
 
-        private void StartedHandler(string filePath)
+        private void ConvertStartedHandler(string filePath)
         {
             for (int i = 0; i < _tableFiles.Rows.Count; ++i)
             {
@@ -189,7 +258,7 @@ namespace Convert.Application
             }
         }
 
-        private void FinishedHandler(string filePath)
+        private void ConvertFinishedHandler(string filePath)
         {
             for (int i = 0; i < _tableFiles.Rows.Count; ++i)
             {
@@ -212,37 +281,20 @@ namespace Convert.Application
         {
             foreach (string file in files)
             {
-                if (file.GetFileType() != FileType.Unsurpport)
+                if (file.FindFileType() != FileType.Unsurpport)
                 {
-                    FileType CurrFileType = file.GetFileType();
-                    if (LastFileType != CurrFileType)
-                    {
-                        _tableFiles.Rows.Clear();
-
-                        Converter = CurrFileType.ChooseConverter();
-
-                        Converter.StartedEvent = StartedHandler;
-                        Converter.FinishedEvent = FinishedHandler;
-
-                        Converter.InfoMsgEvent = 
-                            msg => Debug.WriteLine(msg);
-                        Converter.ErrorMsgEvent = 
-                            msg => MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                        _itemEachToMulti.Enabled = Converter.CanSingleToMulti;
-                        _itemEachToSingle.Enabled = Converter.CanSingleToSingle;
-
-                        LastFileType = CurrFileType;
-                    }
+                    FileType = file.FindFileType();
                     break;
                 }
             }
-            if (LastFileType != FileType.Unsurpport)
+            if (FileType != FileType.Unsurpport)
+            {
                 foreach (string file in files)
                 {
-                    if (file.GetFileType() == LastFileType)
+                    if (file.FindFileType() == FileType)
                         _tableFiles.Rows.Add(new object[] { file, ProgessState.Waiting });
                 }
+            }
         }
         #endregion
 
@@ -254,33 +306,10 @@ namespace Convert.Application
             var dialog = CurrFileType.OpenFileDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                if (LastFileType != CurrFileType)
-                {
-                    _tableFiles.Rows.Clear();
-
-                    Converter = CurrFileType.ChooseConverter();
-
-                    Converter.StartedEvent = StartedHandler;
-                    Converter.FinishedEvent = FinishedHandler;
-
-                    Converter.InfoMsgEvent =
-                        msg => Debug.WriteLine(msg);
-                    Converter.ErrorMsgEvent =
-                        msg => MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                    Converter.ReadEncoding = ReadEncoding;
-                    Converter.WriteEncoding = WriteEncoding;
-
-                    _itemEachToMulti.Enabled = Converter.CanSingleToMulti;
-                    _itemEachToSingle.Enabled = Converter.CanSingleToSingle;
-
-                    LastFileType = CurrFileType;
-                }
+                FileType = CurrFileType;
 
                 foreach (string file in dialog.FileNames)
-                {
                     _tableFiles.Rows.Add(new object[] { file, ProgessState.Waiting });
-                }
             }
         }
 
@@ -293,37 +322,27 @@ namespace Convert.Application
             };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                Task task = null;
-                IEnumerable<string> files 
-                    = _tableFiles.Rows.Cast<DataGridViewRow>()
-                    .Select(r => r.Cells[0].Value.ToString());
-
-                switch ((ExportModel)(sender as ToolStripMenuItem).Tag)
+                Task task = Task.Run(() =>
                 {
-                    case ExportModel.ToSingle:
-                        task = Converter.EachToEach(files, dialog.FileName);
-                        break;
-                    case ExportModel.ToMulti:
-                        task = Converter.EachToMulti(files, dialog.FileName);
-                        break;
-                }
+                    switch ((ExportModel)(sender as ToolStripMenuItem).Tag)
+                    {
+                        case ExportModel.ToSingle:
+                            task = Converter.EachToEach(Files, dialog.FileName);
+                            break;
+                        case ExportModel.ToMulti:
+                            task = Converter.EachToMulti(Files, dialog.FileName);
+                            break;
+                    }
+                });
 
                 if (task != null)
                 {
-                    _menuImport.Enabled = false;
-                    _menuExport.Enabled = false;
-
+                    _menuStrip.Enabled = false;
                     task.ContinueWith(t =>
                     {
-                        _menuImport.Enabled = true;
-                        _menuExport.Enabled = true;
-
-                        _itemEachToMulti.Enabled = Converter.CanSingleToMulti;
-                        _itemEachToSingle.Enabled = Converter.CanSingleToSingle;
-
+                        _menuStrip.Enabled = true;
                         // 打开所在文件夹
                         Process.Start("explorer.exe", dialog.FileName);
-
                     }, TaskScheduler.FromCurrentSynchronizationContext());
                 }
             }
@@ -332,7 +351,9 @@ namespace Convert.Application
         private void ItemClear_Click(object sender, EventArgs e)
         {
             _tableFiles.Rows.Clear();
+
             Converter = null;
+            FileType = FileType.Unsurpport;
         }
 
         #endregion
@@ -446,6 +467,100 @@ namespace Convert.Application
                     Register.RemoveFromContextMenu(KeyName, extension);
             else
                 Register.RemoveFromContextMenu(KeyName);
+        }
+        #endregion
+
+        #region 合并csv
+        private void ItemImportMergedCsv_Click(object sender, EventArgs e)
+        {
+            FileType = FileType.MergeCsv;
+            var dialog = new OpenFileDialog()
+            {
+                Title = "请选择要添加的数据文件",
+                Filter = FileType.GetFileFilter(),
+                Multiselect = true,
+            };
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                foreach (string file in dialog.FileNames)
+                    _tableFiles.Rows.Add(new object[] { file, ProgessState.Waiting });
+            }
+        }
+
+        private void ItemExportMergedCsv_Click(object sender, EventArgs e)
+        {
+            var dialog = FileType.SaveFileDialog();
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                // 弹出一个对话框, 询问是否跳过第一行
+                bool skipFirstRow = 
+                    MessageBox.Show("文件第一行是否为表头?", 
+                    "提示", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+                string tarFile = dialog.FileName.RenameIfFileExists();
+
+                Task task = Task.Run(() => 
+                {
+                    switch ((MergeModel)(sender as ToolStripMenuItem).Tag)
+                    {
+                        case MergeModel.MergeColumns:
+                            (Converter as ConvertMergeCsv).MergeCsvAsColumn(Files, dialog.FileName, skipFirstRow);
+                            break;
+                        case MergeModel.MergeRows:
+                            (Converter as ConvertMergeCsv).MergeCsvAsRow(Files, dialog.FileName, skipFirstRow);
+                            break;
+                    }
+                });
+
+                // 将所有文件的状态设置为处理中
+                for (int i = 0; i < _tableFiles.Rows.Count; ++i)
+                {
+                    _tableFiles.Rows[i].Cells[1].Value = ProgessState.Processing;
+                    _tableFiles.Rows[i].DefaultCellStyle.BackColor = Color.Yellow;
+                }
+                // 禁用菜单
+                _menuStrip.Enabled = false;
+                // 处理完成后的操作
+                task.ContinueWith(t =>
+                {
+                    // 启用菜单
+                    _menuStrip.Enabled = true;
+                    // 将所有文件的状态设置为已完成
+                    for (int i = 0; i < _tableFiles.Rows.Count; ++i)
+                    {
+                        _tableFiles.Rows[i].Cells[1].Value = ProgessState.Finished;
+                        _tableFiles.Rows[i].DefaultCellStyle.BackColor = Color.Green;
+                    }
+                    // 打开所在文件夹
+                    Process.Start("explorer.exe", tarFile);
+                }, TaskScheduler.FromCurrentSynchronizationContext()); 
+            }
+        }
+        #endregion
+
+        #region 增/删行事件
+        private void RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            if (_tableFiles.Rows.Count > 0)
+            {
+                _itemEachToMulti.Enabled = Converter.CanSingleToMulti;
+                _itemEachToSingle.Enabled = Converter.CanSingleToSingle;
+
+                _itemMergeCsvRows.Enabled = Converter is ConvertMergeCsv;
+                _itemMergeCsvColums.Enabled = Converter is ConvertMergeCsv;
+            }
+        }
+
+        private void RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+            if (_tableFiles.Rows.Count == 0)
+            {
+                _itemEachToMulti.Enabled = false;
+                _itemEachToSingle.Enabled = false;
+
+                _itemMergeCsvRows.Enabled = false;
+                _itemMergeCsvColums.Enabled = false;
+            }
         }
         #endregion
     }

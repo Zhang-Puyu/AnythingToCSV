@@ -6,7 +6,7 @@ namespace Convert.Methods
     /// <summary>
     /// 三坐标检测报告处理器
     /// </summary>
-    public sealed class ConvertCMMReport : AbstractConverter
+    public class ConvertCMMReport : AbstractConverter
     {
         #region 单例模式
         private static ConvertCMMReport instance = null;

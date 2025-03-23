@@ -28,11 +28,7 @@ namespace Convert.Methods
             }
         }
 
-        private ConvertJDReport()
-        {
-            // 注册Nuget包System.Text.Encoding.CodePages中的编码到.NET Core
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        }
+        private ConvertJDReport() { }
         #endregion
 
         private readonly char[] trimChars = new char[] { '[', ']', '\n', '\r' };

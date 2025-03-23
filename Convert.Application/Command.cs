@@ -16,9 +16,9 @@ namespace Convert.Application
             // 获取文件类型
             foreach (string file in args)
             {
-                if (file.GetFileType() != FileType.Unsurpport)
+                if (file.FindFileType() != FileType.Unsurpport)
                 {
-                    fileType = file.GetFileType();
+                    fileType = file.FindFileType();
                     break;
                 }
             }
@@ -27,11 +27,11 @@ namespace Convert.Application
             {
                 // 筛选出同类型的文件
                 foreach (string file in args)
-                    if (file.GetFileType() == fileType)
+                    if (file.FindFileType() == fileType)
                         files.Add(file);
 
                 // 根据文件类型选择处理器
-                var converter = fileType.ChooseConverter();
+                var converter = fileType.GetConverter();
                 string folder = Path.GetDirectoryName(files.First());
 
                 // 异步处理文件

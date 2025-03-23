@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using SignalsDic = System.Collections.Generic.Dictionary<string, double[]>;
-using Convert.Method.DWDataReader.API;
+using Convert.Methods.DWDataReader.API;
 
-namespace Convert.Method.DWDataReader
+namespace Convert.Methods.DWDataReader
 {
     public class DWDataReader
     {

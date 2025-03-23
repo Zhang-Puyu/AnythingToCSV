@@ -18,7 +18,6 @@ namespace Convert.Methods
         }
         #endregion
 
-
         #region 将应用程序注册到任意文件类型的右键菜单
         /// <summary>
         /// 将应用程序注册到右键菜单

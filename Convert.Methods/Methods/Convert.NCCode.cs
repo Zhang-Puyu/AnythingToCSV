@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Convert.Methods
 {
+    #region 刀位点结构体
     /// <summary>
     /// 刀位点
     /// </summary>
@@ -85,6 +86,7 @@ namespace Convert.Methods
             return !(left == right);
         }
     }
+    #endregion
 
     /// <summary>
     /// 解析一行代码委托
@@ -111,7 +113,7 @@ namespace Convert.Methods
             }
         }
 
-        private ConvertNCCode() {}
+        private ConvertNCCode() { }
         #endregion
 
         /// <summary>

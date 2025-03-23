@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
-using Convert.Method.DWDataReader;
 
 namespace Convert.Methods
 {
@@ -32,7 +30,7 @@ namespace Convert.Methods
 
         public override void SingleToSingle(string oriFile, string tarFile)
         {
-            DWDataReader.DxdToCsv(oriFile, tarFile);
+            DWDataReader.DWDataReader.DxdToCsv(oriFile, tarFile);
         }
 
         public override Task EachToEach(in IEnumerable<string> oriFiles, string tarFolder)

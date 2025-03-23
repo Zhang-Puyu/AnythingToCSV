@@ -191,9 +191,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Convert.Method\Convert.Method.csproj">
+    <ProjectReference Include="..\Convert.Methods\Convert.Methods.csproj">
       <Project>{1d6bd266-531e-4551-8cbd-6eff19802b11}</Project>
-      <Name>Pro.Method</Name>
+      <Name>Convert.Methods</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

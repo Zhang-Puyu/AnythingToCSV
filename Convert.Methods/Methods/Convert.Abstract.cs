@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Convert.Methods
 {
     #region 文件重命名
-    internal static class StringExtension
+    public static class StringExtension
     {
         /// <summary>
         /// 若文件已存在，则重命名
@@ -66,7 +69,7 @@ namespace Convert.Methods
         /// 支持的编码格式
         /// </summary>
         public static readonly Encoding[] SurpportedEncodings
-            = new Encoding[] 
+            = new Encoding[]
             {
                     Encoding.UTF8,
                     Encoding.Unicode, // UTF-16
@@ -86,7 +89,7 @@ namespace Convert.Methods
 
         #endregion
 
-        #region 支持的转换方式
+        #region 根据方法是否被重写判断支持的转换方式
 
         /// <summary>
         /// 判断方法是否被重写
@@ -96,7 +99,7 @@ namespace Convert.Methods
         private bool IsMethodOverridden(in string methodName)
         {
             var baseMethod = typeof(AbstractConverter).GetMethod(methodName);
-            var subMethod  = this.GetType().GetMethod(methodName);
+            var subMethod = this.GetType().GetMethod(methodName);
 
             return baseMethod.DeclaringType != subMethod.DeclaringType;
         }
@@ -112,41 +115,6 @@ namespace Convert.Methods
 
         #endregion
 
-        #region 合并CSV
-        /// <summary>
-        /// 合并多个csv文件
-        /// </summary>
-        /// <param name="oriFiles">源文件列表</param>
-        /// <param name="tarFile">目标文件</param>
-        /// <param name="skipFirstRow">合并时是否跳过第一行</param>
-        public static void MergeCsv(in IEnumerable<string> oriFiles, string tarFile, bool skipFirstRow = false)
-        {
-            using (StreamWriter writer = new StreamWriter(tarFile.RenameIfFileExists()))
-            {
-                if (skipFirstRow)
-                {
-                    using (StreamReader reader = new StreamReader(oriFiles.First()))
-                    {
-                        writer.WriteLine(reader.ReadLine());
-                        reader.Close();
-                    }
-                }
-                string line = null;
-                foreach (string file in oriFiles)
-                {
-                    using (StreamReader reader = new StreamReader(file))
-                    {
-                        if (skipFirstRow) reader.ReadLine();
-                        while ((line = reader.ReadLine()) != null)
-                            writer.WriteLine(line);
-                        reader.Close();
-                    }
-                }
-                writer.Close();
-            }
-        }
-        #endregion
-
         #region 文件转换方法
 
         /// <summary>
@@ -154,8 +122,8 @@ namespace Convert.Methods
         /// </summary>
         /// <param name="oriFile">源文件</param>
         /// <param name="tarFile">目标文件</param>
-        public virtual void SingleToSingle(string oriFile, string tarFile) 
-        { 
+        public virtual void SingleToSingle(string oriFile, string tarFile)
+        {
             Debug.WriteLine("单个源数据文件转单个csv文件方法未实现");
         }
 

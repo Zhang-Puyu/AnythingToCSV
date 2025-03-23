@@ -5,7 +5,7 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convert.Application", "Convert.Application\Convert.Application.csproj", "{1150498D-9584-46AB-9DD6-F1B617ABD7D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convert.Method", "Convert.Method\Convert.Method.csproj", "{1D6BD266-531E-4551-8CBD-6EFF19802B11}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convert.Methods", "Convert.Methods\Convert.Methods.csproj", "{1D6BD266-531E-4551-8CBD-6EFF19802B11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
