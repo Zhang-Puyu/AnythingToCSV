@@ -118,11 +118,10 @@ namespace Convert.Application
                 }
             }
 
-            // 添加分隔符
-            _menuImport.DropDownItems.Add(new ToolStripSeparator());
             // 添加合并csv项
             var itemImportMergedCsv = new ToolStripMenuItem("合并csv");
             itemImportMergedCsv.Click += ItemImportMergedCsv_Click;
+            itemImportMergedCsv.ForeColor = Color.Blue;
             _menuImport.DropDownItems.Add(itemImportMergedCsv);
 
             // 添加分隔符
@@ -196,7 +195,7 @@ namespace Convert.Application
             itemRegisterAny.Click += ItemRegister_Click;
             _itemRegister.DropDownItems.Add(itemRegisterAny);
 
-            var itemUnregisterAny = new ToolStripMenuItem("移除任意文件类型的右键菜单");
+            var itemUnregisterAny = new ToolStripMenuItem("从任意文件类型的右键菜单移除");
             itemUnregisterAny.Click += ItemUnregister_Click;
             _itemUnregister.DropDownItems.Add(itemUnregisterAny);
 
