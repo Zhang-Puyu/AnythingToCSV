@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Convert.Methods.NC;
 
 namespace Convert.Methods
 {
@@ -33,15 +34,23 @@ namespace Convert.Methods
         /// <summary>
         /// 在线监测G代码
         /// </summary>
-        MonNCCode,
+        GCodeMon,
         /// <summary>
-        /// 刀轨程序(.nc/.cls/.mpf)
+        /// 刀轨程序G代码
         /// </summary>
-        NCCode,
+        GCode,
         /// <summary>
-        /// MaxPac生成的cls代码
+        /// 刀轨程序Apt代码
         /// </summary>
-        MaxCode,
+        ClsStd,
+        /// <summary>
+        /// MaxPac生成带前倾角cls代码
+        /// </summary>
+        ClsDrag,
+        /// <summary>
+        /// UG导出带接触信息的cls刀轨
+        /// </summary>
+        ClsEngage,
         /// <summary>
         /// 合并csv文件
         /// </summary>
@@ -79,15 +88,21 @@ namespace Convert.Methods
             new InforPair { FileType = FileType.DWData,
                             FileFilter = "Dewesoft采集数据 |*.dxd;",
                             Converter = ConvertDWData.Instance },
-            new InforPair { FileType = FileType.MonNCCode,
+            new InforPair { FileType = FileType.GCodeMon,
                             FileFilter = "在线监测G代码 |*.mon;",
-                            Converter = ConvertMonNCCode.Instance },
-            new InforPair { FileType = FileType.NCCode,
-                            FileFilter = "刀轨程序 (.nc/.cls/.mpf) |*.nc;*.cls;*.mpf;",
-                            Converter = ConvertNCCode.Instance },
-            new InforPair { FileType = FileType.MaxCode,
-                            FileFilter = "MaxPac生成的带前倾角刀轨 |*.cls;",
-                            Converter = ConvertMaxCode.Instance },
+                            Converter = ConvertGCodeMon.Instance },
+            new InforPair { FileType = FileType.GCode,
+                            FileFilter = "普通G代码刀轨 |*.nc;*.mpf;",
+                            Converter = ConvertGCode.Instance },
+            new InforPair { FileType = FileType.ClsStd,
+                            FileFilter = "普通CLS刀轨 |*.cls;",
+                            Converter = ConvertClsStd.Instance },
+            new InforPair { FileType = FileType.ClsDrag,
+                            FileFilter = "带前倾角CLS刀轨 |*.cls;",
+                            Converter = ConvertClsDrag.Instance },
+            new InforPair { FileType = FileType.ClsEngage,
+                            FileFilter = "带切触点CLS刀轨 |*.cls;",
+                            Converter = ConvertClsEngage.Instance },
             new InforPair { FileType = FileType.Scan3DData,
                             FileFilter = "scanCONTROL三维扫描数据 |*.csv;",
                             Converter = ConvertScan3DData.Instance },

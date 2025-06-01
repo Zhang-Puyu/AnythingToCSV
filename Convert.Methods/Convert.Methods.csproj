@@ -137,6 +137,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NC\Convert.Cls.Engage.cs" />
+    <Compile Include="NC\Convert.Cls.Std.cs" />
     <Compile Include="DWDataReader\DWDataReader.cs" />
     <Compile Include="DWDataReader\DWDataReaderAPI.cs" />
     <Compile Include="Methods\FileType.cs" />
@@ -144,12 +146,13 @@
     <Compile Include="Methods\Convert.CMMReport.cs" />
     <Compile Include="Methods\Convert.DWData.cs" />
     <Compile Include="Methods\Convert.JDReport.cs" />
-    <Compile Include="Methods\Convert.MonNCCode.cs" />
-    <Compile Include="Methods\Convert.NCCode.cs" />
+    <Compile Include="NC\Convert.GCode.Mon.cs" />
+    <Compile Include="NC\Convert.GCode.cs" />
     <Compile Include="Methods\Convert.Scan3DData.cs" />
     <Compile Include="Methods\Convert.Slk.cs" />
-    <Compile Include="Methods\Convert.MaxCode.cs" />
+    <Compile Include="NC\Convert.Cls.Drag.cs" />
     <Compile Include="Methods\Convert.MergeCsv.cs" />
+    <Compile Include="NC\Convert.NC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Register\Register.cs" />
   </ItemGroup>

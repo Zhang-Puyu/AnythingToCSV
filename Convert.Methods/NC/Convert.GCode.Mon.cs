@@ -1,32 +1,32 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Convert.Methods
+namespace Convert.Methods.NC
 {
-    public class ConvertMonNCCode : AbstractConverter
+    public class ConvertGCodeMon : AbstractConverter
     {
         #region 单例模式
-        private static ConvertMonNCCode instance = null;
+        private static ConvertGCodeMon instance = null;
         private static readonly object padlock = new object();
-        public static ConvertMonNCCode Instance
+        public static ConvertGCodeMon Instance
         {
             get
             {
                 lock (padlock)
                 {
                     if (instance == null)
-                        instance = new ConvertMonNCCode();
+                        instance = new ConvertGCodeMon();
                     return instance;
                 }
             }
         }
 
-        private ConvertMonNCCode() { }
+        private ConvertGCodeMon() { }
         #endregion
 
         public int Rapid { set; get; } = 6000;
 
-        private readonly Regex NCCodeRegex = new Regex(@"(([A-Z])(-?\d+(\.\d+)?|\.\d+))");
+        private readonly Regex GCodeRegex = new Regex(@"(([I-Z])(-?\d+(\.\d+)?|\.\d+))");
         public override void SingleToSingle(string ncFile, string csvFile)
         {
             using (var reader = new System.IO.StreamReader(ncFile, ReadEncoding))
@@ -43,7 +43,7 @@ namespace Convert.Methods
                         while ((line = reader.ReadLine()) != null)
                         {
                             Dictionary<char, float> map = new Dictionary<char, float>();
-                            MatchCollection matches = NCCodeRegex.Matches(line);
+                            MatchCollection matches = GCodeRegex.Matches(line);
 
                             foreach (Match match in matches)
                             {
