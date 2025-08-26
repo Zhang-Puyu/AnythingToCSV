@@ -6,25 +6,25 @@ using System.Text;
 
 namespace Convert.Methods
 {
-    public class ConvertMergeCsv : AbstractConverter
+    public class ConvertMergeCSV : AbstractConverter
     {
         #region 单例模式
-        private static ConvertMergeCsv instance = null;
+        private static ConvertMergeCSV instance = null;
         private static readonly object padlock = new object();
-        public static ConvertMergeCsv Instance
+        public static ConvertMergeCSV Instance
         {
             get
             {
                 lock (padlock)
                 {
                     if (instance == null)
-                        instance = new ConvertMergeCsv();
+                        instance = new ConvertMergeCSV();
                     return instance;
                 }
             }
         }
 
-        private ConvertMergeCsv() { }
+        private ConvertMergeCSV() { }
         #endregion
 
         #region 按行合并

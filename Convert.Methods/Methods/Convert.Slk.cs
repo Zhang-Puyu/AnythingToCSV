@@ -5,25 +5,25 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Convert.Methods
 {
-    public class ConvertSlk : AbstractConverter
+    public class ConvertSLK : AbstractConverter
     {
         #region 单例模式
-        private static ConvertSlk instance = null;
+        private static ConvertSLK instance = null;
         private static readonly object padlock = new object();
-        public static ConvertSlk Instance
+        public static ConvertSLK Instance
         {
             get
             {
                 lock (padlock)
                 {
                     if (instance == null)
-                        instance = new ConvertSlk();
+                        instance = new ConvertSLK();
                     return instance;
                 }
             }
         }
 
-        private ConvertSlk() { }
+        private ConvertSLK() { }
         #endregion
 
         public override void SingleToSingle(string oriFile, string csvFile)

@@ -23,7 +23,6 @@ namespace Convert.Methods
                 }
             }
         }
-
         private ConvertCMMReport() { }
 
         #endregion

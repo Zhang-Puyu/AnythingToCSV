@@ -11,36 +11,6 @@ using System.Windows.Forms;
 
 namespace Convert.Methods
 {
-    #region 文件重命名
-    public static class StringExtension
-    {
-        /// <summary>
-        /// 若文件已存在，则重命名
-        /// </summary>
-        /// <param name="oriFile">原文件</param>
-        /// <returns>文件新名称</returns>
-        public static string RenameIfFileExists(this string oriFile)
-        {
-            // 若文件已存在
-            if (File.Exists(oriFile))
-            {
-                string fileName = Path.GetFileNameWithoutExtension(oriFile);
-                string ext = Path.GetExtension(oriFile);
-                string folder = Path.GetDirectoryName(oriFile);
-                int i = 1;
-                string newFile = Path.Combine(folder, $"{fileName}({i}){ext}");
-                while (File.Exists(newFile))
-                {
-                    i++;
-                    newFile = Path.Combine(folder, $"{fileName}({i}){ext}");
-                }
-                return newFile;
-            }
-            return oriFile;
-        }
-    }
-    #endregion
-
     public abstract class AbstractConverter
     {
         #region 事件

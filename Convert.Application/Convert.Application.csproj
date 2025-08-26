@@ -156,7 +156,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -191,6 +190,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\NCToolBox\NCToolBox\NCToolBox.csproj">
+      <Project>{ffc7c098-015b-1e83-90bc-95ca2305ba74}</Project>
+      <Name>NCToolBox</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Convert.Methods\Convert.Methods.csproj">
       <Project>{1d6bd266-531e-4551-8cbd-6eff19802b11}</Project>
       <Name>Convert.Methods</Name>

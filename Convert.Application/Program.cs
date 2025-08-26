@@ -11,16 +11,9 @@ namespace Convert.Application
         [STAThread]
         static void Main(string[] args)
         {
-            if (args.Length > 0)
-            {
-                ConvertUnknownTypeFiles(args);
-            }
-            else
-            {
-                System.Windows.Forms.Application.EnableVisualStyles();
-                System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
-                System.Windows.Forms.Application.Run(new MainForm());
-            }
+            System.Windows.Forms.Application.EnableVisualStyles();
+            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+            System.Windows.Forms.Application.Run(new MainForm());
         }
     }
 }

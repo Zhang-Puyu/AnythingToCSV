@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convert.Application", "Conv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convert.Methods", "Convert.Methods\Convert.Methods.csproj", "{1D6BD266-531E-4551-8CBD-6EFF19802B11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCToolBox", "..\NCToolBox\NCToolBox\NCToolBox.csproj", "{FFC7C098-015B-1E83-90BC-95CA2305BA74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{1D6BD266-531E-4551-8CBD-6EFF19802B11}.Debug|x64.Build.0 = Debug|Any CPU
 		{1D6BD266-531E-4551-8CBD-6EFF19802B11}.Release|x64.ActiveCfg = Release|x64
 		{1D6BD266-531E-4551-8CBD-6EFF19802B11}.Release|x64.Build.0 = Release|x64
+		{FFC7C098-015B-1E83-90BC-95CA2305BA74}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FFC7C098-015B-1E83-90BC-95CA2305BA74}.Debug|x64.Build.0 = Debug|Any CPU
+		{FFC7C098-015B-1E83-90BC-95CA2305BA74}.Release|x64.ActiveCfg = Release|Any CPU
+		{FFC7C098-015B-1E83-90BC-95CA2305BA74}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

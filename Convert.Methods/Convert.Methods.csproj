@@ -137,24 +137,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NC\Convert.Cls.Engage.cs" />
-    <Compile Include="NC\Convert.Cls.Std.cs" />
+    <Compile Include="Methods\StringExtension.cs" />
+    <Compile Include="NC\ConvertAPTWithContact.cs" />
+    <Compile Include="NC\ConvertAPT.cs" />
     <Compile Include="DWDataReader\DWDataReader.cs" />
     <Compile Include="DWDataReader\DWDataReaderAPI.cs" />
     <Compile Include="Methods\FileType.cs" />
-    <Compile Include="Methods\Convert.Abstract.cs" />
+    <Compile Include="Methods\AbstractConverter.cs" />
     <Compile Include="Methods\Convert.CMMReport.cs" />
     <Compile Include="Methods\Convert.DWData.cs" />
     <Compile Include="Methods\Convert.JDReport.cs" />
-    <Compile Include="NC\Convert.GCode.Mon.cs" />
-    <Compile Include="NC\Convert.GCode.cs" />
+    <Compile Include="NC\ConvertGCode.cs" />
     <Compile Include="Methods\Convert.Scan3DData.cs" />
-    <Compile Include="Methods\Convert.Slk.cs" />
-    <Compile Include="NC\Convert.Cls.Drag.cs" />
+    <Compile Include="Methods\Convert.SLK.cs" />
+    <Compile Include="NC\ConvertAPTWithDrag.cs" />
     <Compile Include="Methods\Convert.MergeCsv.cs" />
-    <Compile Include="NC\Convert.NC.cs" />
+    <Compile Include="NC\ConvertNC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Register\Register.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="DWDataReader\DWDataReaderLib64.dll">
@@ -164,6 +163,12 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\NCToolBox\NCToolBox\NCToolBox.csproj">
+      <Project>{ffc7c098-015b-1e83-90bc-95ca2305ba74}</Project>
+      <Name>NCToolBox</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

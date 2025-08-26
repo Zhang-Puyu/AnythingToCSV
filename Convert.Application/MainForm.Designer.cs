@@ -41,9 +41,6 @@
             this._menuEncoding = new System.Windows.Forms.ToolStripMenuItem();
             this._itemReadEncoding = new System.Windows.Forms.ToolStripMenuItem();
             this._itemWriteEncoding = new System.Windows.Forms.ToolStripMenuItem();
-            this._menuRegister = new System.Windows.Forms.ToolStripMenuItem();
-            this._itemRegister = new System.Windows.Forms.ToolStripMenuItem();
-            this._itemUnregister = new System.Windows.Forms.ToolStripMenuItem();
             this._tableFiles = new System.Windows.Forms.DataGridView();
             this.colFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colProgress = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -113,8 +110,7 @@
             this._menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._menuImport,
             this._menuExport,
-            this._menuEncoding,
-            this._menuRegister});
+            this._menuEncoding});
             this._menuStrip.Location = new System.Drawing.Point(0, 0);
             this._menuStrip.Name = "_menuStrip";
             this._menuStrip.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
@@ -137,39 +133,15 @@
             this._itemReadEncoding.BackColor = System.Drawing.SystemColors.Control;
             this._itemReadEncoding.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this._itemReadEncoding.Name = "_itemReadEncoding";
-            this._itemReadEncoding.Size = new System.Drawing.Size(180, 22);
+            this._itemReadEncoding.Size = new System.Drawing.Size(100, 22);
             this._itemReadEncoding.Text = "读取";
             // 
             // _itemWriteEncoding
             // 
             this._itemWriteEncoding.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this._itemWriteEncoding.Name = "_itemWriteEncoding";
-            this._itemWriteEncoding.Size = new System.Drawing.Size(180, 22);
+            this._itemWriteEncoding.Size = new System.Drawing.Size(100, 22);
             this._itemWriteEncoding.Text = "写入";
-            // 
-            // _menuRegister
-            // 
-            this._menuRegister.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this._menuRegister.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this._menuRegister.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._itemRegister,
-            this._itemUnregister});
-            this._menuRegister.Name = "_menuRegister";
-            this._menuRegister.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this._menuRegister.Size = new System.Drawing.Size(44, 21);
-            this._menuRegister.Text = "注册";
-            // 
-            // _itemRegister
-            // 
-            this._itemRegister.Name = "_itemRegister";
-            this._itemRegister.Size = new System.Drawing.Size(160, 22);
-            this._itemRegister.Text = "注册到右键菜单";
-            // 
-            // _itemUnregister
-            // 
-            this._itemUnregister.Name = "_itemUnregister";
-            this._itemUnregister.Size = new System.Drawing.Size(160, 22);
-            this._itemUnregister.Text = "从右键菜单移除";
             // 
             // _tableFiles
             // 
@@ -195,8 +167,6 @@
             this._tableFiles.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.TableFiles_RowPostPaint);
             this._tableFiles.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.RowsAdded);
             this._tableFiles.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.RowsRemoved);
-            this._tableFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
-            this._tableFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
             // 
             // colFileName
             // 
@@ -228,8 +198,6 @@
             this.MainMenuStrip = this._menuStrip;
             this.Name = "MainForm";
             this.Text = "SyncConvert";
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
             this._menuStrip.ResumeLayout(false);
             this._menuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this._tableFiles)).EndInit();
@@ -245,9 +213,6 @@
         private System.Windows.Forms.ToolStripMenuItem _itemEachToMulti;
         private System.Windows.Forms.ToolStripMenuItem _itemEachToSingle;
         private System.Windows.Forms.DataGridView _tableFiles;
-        private System.Windows.Forms.ToolStripMenuItem _menuRegister;
-        private System.Windows.Forms.ToolStripMenuItem _itemRegister;
-        private System.Windows.Forms.ToolStripMenuItem _itemUnregister;
         private System.Windows.Forms.DataGridViewTextBoxColumn colFileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colProgress;
         private System.Windows.Forms.ToolTip _toolTip;
