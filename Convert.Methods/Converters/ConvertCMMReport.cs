@@ -1,37 +1,21 @@
 ﻿using System.IO;
 using System.Text;
+using MachKit.Common;
 
-namespace Convert.Methods
+namespace Convert.Methods.Converters
 {
     /// <summary>
     /// 三坐标检测报告处理器
     /// </summary>
     public class ConvertCMMReport : AbstractConverter
     {
-        #region 单例模式
-        private static ConvertCMMReport instance = null;
-        private static readonly object padlock = new object();
-        public static ConvertCMMReport Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                        instance = new ConvertCMMReport();
-                    return instance;
-                }
-            }
-        }
-        private ConvertCMMReport() { }
+        public override string FileFilter => "三坐标测量报告 |*.txt;";
 
-        #endregion
-
-        public override void SingleToSingle(string oriFile, string tarFile)
+        public override void ConvertSingleToSingle(string oriFile, string tarFile)
         {
             using (var reader = new StreamReader(oriFile, ReadEncoding))
             {
-                using (var writer = new StreamWriter(tarFile, false, WriteEncoding))
+                using (var writer = new StreamWriter(tarFile.RenameIfExist(), false, WriteEncoding))
                 {
                     string line = null;
                     while ((line = reader.ReadLine()) != null)
@@ -49,8 +33,7 @@ namespace Convert.Methods
             }
         }
 
-
-        public override void SingleToMulti(string oriFile, string folder)
+        public override void ConvertSingleToMulti(string oriFile, string folder)
         {
             using (StreamReader reader = new StreamReader(oriFile, ReadEncoding))
             {
@@ -62,8 +45,8 @@ namespace Convert.Methods
                     {
                         writer?.Close();
                         string name = line.Substring(0, line.IndexOf(' '));
-                        var tarFile = Path.Combine(folder, name + ".csv").RenameIfFileExists();
-                        writer = new StreamWriter(tarFile, false, WriteEncoding);
+                        var tarFile = Path.Combine(folder, name + ".csv");
+                        writer = new StreamWriter(tarFile.RenameIfExist(), false, WriteEncoding);
                     }
                     if (line.Trim().StartsWith("触测/矢量"))
                     {

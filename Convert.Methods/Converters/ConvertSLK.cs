@@ -1,32 +1,16 @@
 ﻿using System;
 using System.IO;
 using Excel = Microsoft.Office.Interop.Excel;
+using MachKit.Common;
 
 
-namespace Convert.Methods
+namespace Convert.Methods.Converters
 {
     public class ConvertSLK : AbstractConverter
     {
-        #region 单例模式
-        private static ConvertSLK instance = null;
-        private static readonly object padlock = new object();
-        public static ConvertSLK Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                        instance = new ConvertSLK();
-                    return instance;
-                }
-            }
-        }
+        public override string FileFilter => "SLK矩阵文件 |*.slk;";
 
-        private ConvertSLK() { }
-        #endregion
-
-        public override void SingleToSingle(string oriFile, string csvFile)
+        public override void ConvertSingleToSingle(string oriFile, string csvFile)
         {
             // 创建Excel应用程序对象
             InfoMsgEvent?.Invoke("Init Excel");
@@ -42,7 +26,7 @@ namespace Convert.Methods
                 Excel.Workbook workbook = excelApp.Workbooks.Open(oriFile);
 
                 // 将SLK文件另存为CSV格式
-                workbook.SaveAs(csvFile, Excel.XlFileFormat.xlCSV,
+                workbook.SaveAs(csvFile.RenameIfExist(), Excel.XlFileFormat.xlCSV,
                     Type.Missing, Type.Missing,
                     false, false,
                     Excel.XlSaveAsAccessMode.xlNoChange,

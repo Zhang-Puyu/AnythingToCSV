@@ -7,8 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using Convert.Methods;
+using Convert.Methods.Converters;
+using MachKit.Common;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using static System.Resources.ResXFileRef;
 using MessageBox = System.Windows.MessageBox;
 
 namespace Convert.Application
@@ -36,22 +38,6 @@ namespace Convert.Application
         ToMulti
     }
 
-    /// <summary>
-    /// csv合并模式
-    /// </summary>
-    internal enum MergeModel
-    {
-        /// <summary>
-        /// 合并行
-        /// </summary>
-        MergeRows,
-        /// <summary>
-        /// 合并列
-        /// </summary>
-        MergeColumns
-    }
-
-
     public partial class MainForm : Form
     {
         private AbstractConverter converter = null;
@@ -60,35 +46,20 @@ namespace Convert.Application
             get => converter;
             set
             {
+                if (value is null || converter?.GetType() != value?.GetType())
+                    _tableFiles.Rows.Clear();
+                    
                 converter = value;
                 if (converter != null)
                 {
-                    converter.StartedEvent = ConvertStartedHandler;
-                    converter.FinishedEvent = ConvertFinishedHandler;
+                    converter.OneFileConvertStartedEvent = ConvertStartedHandler;
+                    converter.OneFileConvertFinishedEvent = ConvertFinishedHandler;
 
                     converter.InfoMsgEvent =
                         msg => Debug.WriteLine(msg);
                     converter.ErrorMsgEvent =
                         msg => MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                    converter.ReadEncoding = ReadEncoding;
-                    converter.WriteEncoding = WriteEncoding;
                 }
-            }
-        }
-
-        private FileType fileType;
-        private FileType FileType 
-        {
-            get => fileType;
-            set
-            {
-                if (fileType != value)
-                {
-                    _tableFiles.Rows.Clear();
-                    fileType = value;
-                }
-                Converter = fileType.GetConverter();
             }
         }
 
@@ -98,26 +69,26 @@ namespace Convert.Application
 
             #region <导入>菜单
             // 遍历FileType枚举类型, 将类型对应的导入选项添加到<导入>菜单
-            foreach (FileType fileType in Enum.GetValues(typeof(FileType)))
+            foreach (AbstractConverter instance in AbstractConverter.GetAllConvertersInstances())
             {
-                if (fileType != FileType.MergeCsv)
+                if (!(instance is ConvertMergeCSV))
                 {
-                    var itemImport = new ToolStripMenuItem(fileType.GetDescription());
+                    var itemImport = new ToolStripMenuItem(instance.Description);
                     itemImport.Click += ItemImport_Click;
-                    itemImport.Tag = fileType;
+                    itemImport.Tag = instance;
                     _menuImport.DropDownItems.Add(itemImport);
 
                     // 添加提示信息
-                    itemImport.ToolTipText = string.Join("/", fileType.GetFileExtensions());
+                    itemImport.ToolTipText = string.Join("/", instance.FileExtensions);
                     itemImport.AutoToolTip = true;
                 }
             }
 
             // 添加合并csv项
-            var itemImportMergedCsv = new ToolStripMenuItem("合并csv");
-            itemImportMergedCsv.Click += ItemImportMergedCsv_Click;
-            itemImportMergedCsv.ForeColor = Color.Blue;
-            _menuImport.DropDownItems.Add(itemImportMergedCsv);
+            var itemImportMergedCSV = new ToolStripMenuItem("合并csv");
+            itemImportMergedCSV.Click += ItemImportMergedCSV_Click;
+            itemImportMergedCSV.ForeColor = Color.Blue;
+            _menuImport.DropDownItems.Add(itemImportMergedCSV);
 
             // 添加分隔符
             _menuImport.DropDownItems.Add(new ToolStripSeparator());
@@ -132,8 +103,8 @@ namespace Convert.Application
             _itemEachToSingle.Tag = ExportModel.ToSingle;
             _itemEachToMulti.Tag  = ExportModel.ToMulti;
 
-            _itemMergeCsvColums.Tag = MergeModel.MergeColumns;
-            _itemMergeCsvRows.Tag = MergeModel.MergeRows;
+            _itemMergeCSVColums.Tag = MergeModel.MergeColumns;
+            _itemMergeCSVRows.Tag = MergeModel.MergeRows;
             #endregion
 
             #region <编码格式>菜单 
@@ -234,13 +205,11 @@ namespace Convert.Application
         #region 导入/导出菜单按钮点击事件
         private void ItemImport_Click(object sender, EventArgs e)
         {
-            FileType CurrFileType = (FileType)(sender as ToolStripMenuItem).Tag;
+            Converter = (AbstractConverter)(sender as ToolStripMenuItem).Tag;
 
-            var dialog = CurrFileType.OpenFileDialog();
+            var dialog = Converter.OpenFileDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                FileType = CurrFileType;
-
                 foreach (string file in dialog.FileNames)
                     _tableFiles.Rows.Add(new object[] { file, ProgessState.Waiting });
             }
@@ -255,15 +224,17 @@ namespace Convert.Application
             };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
+                Converter.ReadEncoding = ReadEncoding;
+                Converter.WriteEncoding = WriteEncoding;
                 Task task = Task.Run(() =>
                 {
                     switch ((ExportModel)(sender as ToolStripMenuItem).Tag)
                     {
                         case ExportModel.ToSingle:
-                            task = Converter.EachToEach(Files, dialog.FileName);
+                            task = Converter.ConvertEachToSingle(Files, dialog.FileName);
                             break;
                         case ExportModel.ToMulti:
-                            task = Converter.EachToMulti(Files, dialog.FileName);
+                            task = Converter.ConvertEachToMulti(Files, dialog.FileName);
                             break;
                     }
                 });
@@ -275,7 +246,7 @@ namespace Convert.Application
                     {
                         _menuStrip.Enabled = true;
                         // 打开所在文件夹
-                        Process.Start("explorer.exe", dialog.FileName);
+                        // Process.Start("explorer.exe", dialog.FileName);
                     }, TaskScheduler.FromCurrentSynchronizationContext());
                 }
             }
@@ -284,7 +255,6 @@ namespace Convert.Application
         private void ItemClear_Click(object sender, EventArgs e)
         {
             _tableFiles.Rows.Clear();
-
             Converter = null;
         }
 
@@ -312,15 +282,10 @@ namespace Convert.Application
         #endregion
 
         #region 合并csv
-        private void ItemImportMergedCsv_Click(object sender, EventArgs e)
+        private void ItemImportMergedCSV_Click(object sender, EventArgs e)
         {
-            FileType = FileType.MergeCsv;
-            var dialog = new OpenFileDialog()
-            {
-                Title = "请选择要添加的数据文件",
-                Filter = FileType.GetFileFilter(),
-                Multiselect = true,
-            };
+            Converter = (AbstractConverter)(sender as ToolStripMenuItem).Tag;
+            var dialog = Converter.OpenFileDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 foreach (string file in dialog.FileNames)
@@ -328,9 +293,9 @@ namespace Convert.Application
             }
         }
 
-        private void ItemExportMergedCsv_Click(object sender, EventArgs e)
+        private void ItemExportMergedCSV_Click(object sender, EventArgs e)
         {
-            var dialog = fileType.SaveFileDialog();
+            var dialog = Converter.SaveFileDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 // 弹出一个对话框, 询问是否跳过第一行
@@ -338,17 +303,19 @@ namespace Convert.Application
                     MessageBox.Show("文件第一行是否为表头?", 
                     "提示", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
-                string tarFile = dialog.FileName.RenameIfFileExists();
+                Converter.ReadEncoding = ReadEncoding;
+                Converter.WriteEncoding = WriteEncoding;
 
+                string tarFile = dialog.FileName.RenameIfExist();
                 Task task = Task.Run(() => 
                 {
                     switch ((MergeModel)(sender as ToolStripMenuItem).Tag)
                     {
                         case MergeModel.MergeColumns:
-                            (Converter as ConvertMergeCSV).MergeCsvAsColumn(Files, dialog.FileName, skipFirstRow);
+                            (Converter as ConvertMergeCSV).MergeCSVAsColumn(Files, dialog.FileName, skipFirstRow);
                             break;
                         case MergeModel.MergeRows:
-                            (Converter as ConvertMergeCSV).MergeCsvAsRow(Files, dialog.FileName, skipFirstRow);
+                            (Converter as ConvertMergeCSV).MergeCSVAsRow(Files, dialog.FileName, skipFirstRow);
                             break;
                     }
                 });
@@ -384,11 +351,11 @@ namespace Convert.Application
         {
             if (_tableFiles.Rows.Count > 0)
             {
-                _itemEachToMulti.Enabled = Converter.CanSingleToMulti;
-                _itemEachToSingle.Enabled = Converter.CanSingleToSingle;
+                _itemEachToMulti.Enabled = Converter.CanConvertSingleToMulti;
+                _itemEachToSingle.Enabled = Converter.CanConvertSingleToSingle;
 
-                _itemMergeCsvRows.Enabled = Converter is ConvertMergeCSV;
-                _itemMergeCsvColums.Enabled = Converter is ConvertMergeCSV;
+                _itemMergeCSVRows.Enabled = Converter is ConvertMergeCSV;
+                _itemMergeCSVColums.Enabled = Converter is ConvertMergeCSV;
             }
         }
 
@@ -399,8 +366,8 @@ namespace Convert.Application
                 _itemEachToMulti.Enabled = false;
                 _itemEachToSingle.Enabled = false;
 
-                _itemMergeCsvRows.Enabled = false;
-                _itemMergeCsvColums.Enabled = false;
+                _itemMergeCSVRows.Enabled = false;
+                _itemMergeCSVColums.Enabled = false;
             }
         }
         #endregion

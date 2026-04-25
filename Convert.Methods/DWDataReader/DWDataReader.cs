@@ -9,7 +9,7 @@ namespace Convert.Methods.DWDataReader
 {
     public class DWDataReader
     {
-        public static SignalsDic ReadDxdFile(string filePath)
+        public static SignalsDic ReadDXD(string filePath)
         {
             Debug.WriteLine($"Reading {filePath} ...");
 
@@ -70,9 +70,9 @@ namespace Convert.Methods.DWDataReader
 
             return signals;
         }
-        public static void DxdToCsv(string dxdPath, string csvPath)
+        public static void DXDToCSV(string dxdPath, string csvPath)
         {
-            SignalsDic signal = ReadDxdFile(dxdPath);
+            SignalsDic signal = ReadDXD(dxdPath);
             if (signal.Count == 0)
             {
                 Debug.WriteLine("No signal read. ");

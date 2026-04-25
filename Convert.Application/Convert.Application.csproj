@@ -83,7 +83,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack.Core, Version=8.0.6.0, Culture=neutral, PublicKeyToken=8afb38e9204fc0a9, processorArchitecture=MSIL">
@@ -190,9 +190,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NCToolBox\NCToolBox\NCToolBox.csproj">
-      <Project>{ffc7c098-015b-1e83-90bc-95ca2305ba74}</Project>
-      <Name>NCToolBox</Name>
+    <ProjectReference Include="..\..\MachKit\MachKit.CSharp\MachKit.CSharp.csproj">
+      <Project>{dafdd848-394f-69c0-00ad-d40712aee3be}</Project>
+      <Name>MachKit.CSharp</Name>
     </ProjectReference>
     <ProjectReference Include="..\Convert.Methods\Convert.Methods.csproj">
       <Project>{1d6bd266-531e-4551-8cbd-6eff19802b11}</Project>

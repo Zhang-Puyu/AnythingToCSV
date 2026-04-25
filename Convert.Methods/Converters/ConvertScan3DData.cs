@@ -1,39 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using MachKit.Common;
 
-namespace Convert.Methods
+namespace Convert.Methods.Converters
 {
     /// <summary>
     /// scanCONTROL 3D扫描数据处理器
     /// </summary>
     public class ConvertScan3DData : AbstractConverter
     {
-        #region 单例模式
-        private static ConvertScan3DData instance = null;
-        private static readonly object padlock = new object();
-        public static ConvertScan3DData Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                        instance = new ConvertScan3DData();
-                    return instance;
-                }
-            }
-        }
-
-        private ConvertScan3DData() { }
-        #endregion
+        public override string FileFilter => "scanCONTROL三维扫描数据 |*.csv;";
 
         internal static int Min(in int a, in int b, in int c)
         {
             return Math.Min(Math.Min(a, b), c);
         }
 
-        public override void SingleToSingle(string oriFile, string tarFile)
+        public override void ConvertSingleToSingle(string oriFile, string tarFile)
         {
             List<string> X = new List<string>();
             List<string> Y = new List<string>();
@@ -55,7 +39,7 @@ namespace Convert.Methods
                 reader.Close();
             }
 
-            using (StreamWriter writer = new StreamWriter(tarFile, false, WriteEncoding))
+            using (StreamWriter writer = new StreamWriter(tarFile.RenameIfExist(), false, WriteEncoding))
             {
                 writer.WriteLine("x,y,z");
                 int l = Min(X.Count, Y.Count, Z.Count);

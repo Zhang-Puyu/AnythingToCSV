@@ -3,29 +3,28 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MachKit.Common;
 
-namespace Convert.Methods
+namespace Convert.Methods.Converters
 {
+    /// <summary>
+    /// csv合并模式
+    /// </summary>
+    public enum MergeModel
+    {
+        /// <summary>
+        /// 合并行
+        /// </summary>
+        MergeRows,
+        /// <summary>
+        /// 合并列
+        /// </summary>
+        MergeColumns
+    }
+
     public class ConvertMergeCSV : AbstractConverter
     {
-        #region 单例模式
-        private static ConvertMergeCSV instance = null;
-        private static readonly object padlock = new object();
-        public static ConvertMergeCSV Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                        instance = new ConvertMergeCSV();
-                    return instance;
-                }
-            }
-        }
-
-        private ConvertMergeCSV() { }
-        #endregion
+        public override string FileFilter => "csv文件 |*.csv;";
 
         #region 按行合并
         /// <summary>
@@ -34,11 +33,11 @@ namespace Convert.Methods
         /// <param name="oriFiles">源文件列表</param>
         /// <param name="tarFile">目标文件</param>
         /// <param name="skipFirstRow">源文件是否包含表头</param>
-        public void MergeCsvAsRow(in IEnumerable<string> oriFiles, string tarFile, bool skipFirstRow = false)
+        public void MergeCSVAsRow(in IEnumerable<string> oriFiles, string tarFile, bool skipFirstRow = false)
         {
-            StartedEvent?.Invoke("开始合并文件");
+            OneFileConvertStartedEvent?.Invoke("开始合并文件");
 
-            using (StreamWriter writer = new StreamWriter(tarFile.RenameIfFileExists(), false, WriteEncoding))
+            using (StreamWriter writer = new StreamWriter(tarFile.RenameIfExist(), false, WriteEncoding))
             {
                 if (skipFirstRow)
                 {
@@ -49,9 +48,9 @@ namespace Convert.Methods
                     }
                 }
                 string line = null;
-                foreach (string file in oriFiles)
+                foreach (string oriFile in oriFiles)
                 {
-                    using (StreamReader reader = new StreamReader(file, ReadEncoding))
+                    using (StreamReader reader = new StreamReader(oriFile, ReadEncoding))
                     {
                         if (skipFirstRow) reader.ReadLine();
                         while ((line = reader.ReadLine()) != null)
@@ -62,7 +61,7 @@ namespace Convert.Methods
                 writer.Close();
             }
 
-            FinishedEvent?.Invoke("文件合并完成");
+            OneFileConvertFinishedEvent?.Invoke("文件合并完成");
         }
         #endregion
 
@@ -73,9 +72,9 @@ namespace Convert.Methods
         /// <param name="oriFiles">源文件列表</param>
         /// <param name="tarFile">目标文件</param>
         /// <param name="skipFirstRow">源文件是否包含表头</param>
-        public void MergeCsvAsColumn(in IEnumerable<string> oriFiles, string tarFile, bool skipFirstRow = false)
+        public void MergeCSVAsColumn(in IEnumerable<string> oriFiles, string tarFile, bool skipFirstRow = false)
         {
-            StartedEvent?.Invoke("开始合并文件");
+            OneFileConvertStartedEvent?.Invoke("开始合并文件");
 
             StringBuilder head = new StringBuilder();
             List<StringBuilder> data = new List<StringBuilder>();
@@ -102,7 +101,7 @@ namespace Convert.Methods
                     reader.Close();
                 }
             }
-            using (StreamWriter writer = new StreamWriter(tarFile.RenameIfFileExists(), false, WriteEncoding))
+            using (StreamWriter writer = new StreamWriter(tarFile.RenameIfExist(), false, WriteEncoding))
             {
                 if (skipFirstRow)
                     // 删除head最后一个逗号
@@ -115,7 +114,7 @@ namespace Convert.Methods
                 writer.Close();
             }
 
-            FinishedEvent?.Invoke("文件合并完成");
+            OneFileConvertFinishedEvent?.Invoke("文件合并完成");
         }
         #endregion
     }

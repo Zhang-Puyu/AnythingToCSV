@@ -4,57 +4,36 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Office.Interop.Excel;
+using MachKit.Common;
 
-namespace Convert.Methods
+namespace Convert.Methods.Converters
 {
-    /// <summary>
-    /// 精雕在机检测报告处理器
-    /// </summary>
     public class ConvertJDReport : AbstractConverter
     {
-        #region 单例模式
-        private static ConvertJDReport instance = null;
-        private static readonly object padlock = new object();
-        public static ConvertJDReport Instance
+        public override string FileFilter => "精雕在机测量报告 |*_Export.txt;";
+
+        private readonly char[] TrimChars = new char[] { '[', ']', '\n', '\r' };
+        public override void ConvertSingleToSingle(string oriFile, string csvFile)
         {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                        instance = new ConvertJDReport();
-                    return instance;
-                }
-            }
-        }
-
-        private ConvertJDReport() { }
-        #endregion
-
-        private readonly char[] trimChars = new char[] { '[', ']', '\n', '\r' };
-
-        public override void SingleToSingle(string oriFile, string csvFile)
-        {
-            string fileName = Path.GetFileNameWithoutExtension(oriFile);
-
             using (StreamReader reader = new StreamReader(oriFile, ReadEncoding))
             {
                 string[] text = reader.ReadToEnd().Split('\n');
                 var reportIndexes = text.Select((line, index) => new { line, index })
                     .Where(x => x.line.Contains("版本号:"))
                     .Select(x => x.index);
-                using (StreamWriter writer = new StreamWriter(csvFile, false, WriteEncoding))
+                using (StreamWriter writer = new StreamWriter(csvFile.RenameIfExist(), false, WriteEncoding))
                 {
-                    string[] head = text[reportIndexes.First() + 11].Trim(trimChars).Split(Array.Empty<char>(), StringSplitOptions.RemoveEmptyEntries);
+                    string[] head = text[reportIndexes.First() + 11].Trim(TrimChars).Split(Array.Empty<char>(), StringSplitOptions.RemoveEmptyEntries);
                     writer.WriteLine(string.Join(",", head));
 
                     List<string> reportNames = new List<string>();
 
                     foreach (int reportIndex in reportIndexes)
                     {
-                        // string verion = text[reportIndex].Split(' ')[1].TrimEnd(trimChars);
-                        // string time   = text[reportIndex + 1].Split(' ')[1].TrimEnd(trimChars);
-                        string reportName = text[reportIndex + 2].Split(' ')[1].TrimEnd(trimChars);
+                        // string verion = text[reportIndex].Split(' ')[1].TrimEnd(TrimChars);
+                        // string time   = text[reportIndex + 1].Split(' ')[1].TrimEnd(TrimChars);
+                        string reportName = text[reportIndex + 2].Split(' ')[1].TrimEnd(TrimChars);
                         reportNames.Add(reportName);
 
                         int lineIndex = reportIndex + 11;
@@ -72,10 +51,8 @@ namespace Convert.Methods
             }
         }
 
-        public override void SingleToMulti(string oriFile, string folder)
+        public override void ConvertSingleToMulti(string oriFile, string folder)
         {
-            string fileName = Path.GetFileNameWithoutExtension(oriFile);
-
             using (StreamReader reader = new StreamReader(oriFile, ReadEncoding))
             {
                 string[] text = reader.ReadToEnd().Split('\n');
@@ -86,15 +63,15 @@ namespace Convert.Methods
 
                 Parallel.ForEach(reportIndexes, reportIndex =>
                 {
-                    // string verion = text[reportIndex].Split(' ')[1].TrimEnd(trimChars);
-                    // string time   = text[reportIndex + 1].Split(' ')[1].TrimEnd(trimChars);
-                    string reportName = text[reportIndex + 2].Split(' ')[1].TrimEnd(trimChars);
+                    // string verion = text[reportIndex].Split(' ')[1].TrimEnd(TrimChars);
+                    // string time   = text[reportIndex + 1].Split(' ')[1].TrimEnd(TrimChars);
+                    string reportName = text[reportIndex + 2].Split(' ')[1].TrimEnd(TrimChars);
                     reportNames.Add(reportName);
 
-                    string tarFile = Path.Combine(folder, reportName + ".csv").RenameIfFileExists();
-                    using (StreamWriter writer = new StreamWriter(tarFile, false, WriteEncoding))
+                    string tarFile = Path.Combine(folder, reportName + ".csv");
+                    using (StreamWriter writer = new StreamWriter(tarFile.RenameIfExist(), false, WriteEncoding))
                     {
-                        string[] head = text[reportIndex + 11].Trim(trimChars).Split(Array.Empty<char>(), StringSplitOptions.RemoveEmptyEntries);
+                        string[] head = text[reportIndex + 11].Trim(TrimChars).Split(Array.Empty<char>(), StringSplitOptions.RemoveEmptyEntries);
                         writer.WriteLine(string.Join(",", head));
 
                         int lineIndex = reportIndex + 11;

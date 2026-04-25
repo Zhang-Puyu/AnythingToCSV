@@ -35,8 +35,8 @@
             this._itemEachToSingle = new System.Windows.Forms.ToolStripMenuItem();
             this._itemEachToMulti = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this._itemMergeCsvRows = new System.Windows.Forms.ToolStripMenuItem();
-            this._itemMergeCsvColums = new System.Windows.Forms.ToolStripMenuItem();
+            this._itemMergeCSVRows = new System.Windows.Forms.ToolStripMenuItem();
+            this._itemMergeCSVColums = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStrip = new System.Windows.Forms.MenuStrip();
             this._menuEncoding = new System.Windows.Forms.ToolStripMenuItem();
             this._itemReadEncoding = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,8 +61,8 @@
             this._itemEachToSingle,
             this._itemEachToMulti,
             this.toolStripSeparator1,
-            this._itemMergeCsvRows,
-            this._itemMergeCsvColums});
+            this._itemMergeCSVRows,
+            this._itemMergeCSVColums});
             this._menuExport.Name = "_menuExport";
             this._menuExport.Size = new System.Drawing.Size(44, 21);
             this._menuExport.Text = "导出";
@@ -88,21 +88,21 @@
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(199, 6);
             // 
-            // _itemMergeCsvRows
+            // _itemMergeCSVRows
             // 
-            this._itemMergeCsvRows.Enabled = false;
-            this._itemMergeCsvRows.Name = "_itemMergeCsvRows";
-            this._itemMergeCsvRows.Size = new System.Drawing.Size(202, 22);
-            this._itemMergeCsvRows.Text = "按行合并csv";
-            this._itemMergeCsvRows.Click += new System.EventHandler(this.ItemExportMergedCsv_Click);
+            this._itemMergeCSVRows.Enabled = false;
+            this._itemMergeCSVRows.Name = "_itemMergeCSVRows";
+            this._itemMergeCSVRows.Size = new System.Drawing.Size(202, 22);
+            this._itemMergeCSVRows.Text = "按行合并csv";
+            this._itemMergeCSVRows.Click += new System.EventHandler(this.ItemExportMergedCSV_Click);
             // 
-            // _itemMergeCsvColums
+            // _itemMergeCSVColums
             // 
-            this._itemMergeCsvColums.Enabled = false;
-            this._itemMergeCsvColums.Name = "_itemMergeCsvColums";
-            this._itemMergeCsvColums.Size = new System.Drawing.Size(202, 22);
-            this._itemMergeCsvColums.Text = "按列合并csv";
-            this._itemMergeCsvColums.Click += new System.EventHandler(this.ItemExportMergedCsv_Click);
+            this._itemMergeCSVColums.Enabled = false;
+            this._itemMergeCSVColums.Name = "_itemMergeCSVColums";
+            this._itemMergeCSVColums.Size = new System.Drawing.Size(202, 22);
+            this._itemMergeCSVColums.Text = "按列合并csv";
+            this._itemMergeCSVColums.Click += new System.EventHandler(this.ItemExportMergedCSV_Click);
             // 
             // _menuStrip
             // 
@@ -220,8 +220,8 @@
         private System.Windows.Forms.ToolStripMenuItem _itemReadEncoding;
         private System.Windows.Forms.ToolStripMenuItem _itemWriteEncoding;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem _itemMergeCsvRows;
-        private System.Windows.Forms.ToolStripMenuItem _itemMergeCsvColums;
+        private System.Windows.Forms.ToolStripMenuItem _itemMergeCSVRows;
+        private System.Windows.Forms.ToolStripMenuItem _itemMergeCSVColums;
     }
 }
 

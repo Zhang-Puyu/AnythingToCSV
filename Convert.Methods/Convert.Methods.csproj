@@ -7,7 +7,7 @@
     <ProjectGuid>{1D6BD266-531E-4551-8CBD-6EFF19802B11}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Convert</RootNamespace>
+    <RootNamespace>Convert.Methods</RootNamespace>
     <AssemblyName>Convert.Methods</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -137,22 +137,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Methods\StringExtension.cs" />
     <Compile Include="NC\ConvertAPTWithContact.cs" />
     <Compile Include="NC\ConvertAPT.cs" />
     <Compile Include="DWDataReader\DWDataReader.cs" />
     <Compile Include="DWDataReader\DWDataReaderAPI.cs" />
-    <Compile Include="Methods\FileType.cs" />
-    <Compile Include="Methods\AbstractConverter.cs" />
-    <Compile Include="Methods\Convert.CMMReport.cs" />
-    <Compile Include="Methods\Convert.DWData.cs" />
-    <Compile Include="Methods\Convert.JDReport.cs" />
+    <Compile Include="Converters\AbstractConverter.cs" />
+    <Compile Include="Converters\ConvertCMMReport.cs" />
+    <Compile Include="Converters\ConvertDWData.cs" />
+    <Compile Include="Converters\ConvertJDReport.cs" />
     <Compile Include="NC\ConvertGCode.cs" />
-    <Compile Include="Methods\Convert.Scan3DData.cs" />
-    <Compile Include="Methods\Convert.SLK.cs" />
+    <Compile Include="Converters\ConvertScan3DData.cs" />
+    <Compile Include="Converters\ConvertSLK.cs" />
     <Compile Include="NC\ConvertAPTWithDrag.cs" />
-    <Compile Include="Methods\Convert.MergeCsv.cs" />
-    <Compile Include="NC\ConvertNC.cs" />
+    <Compile Include="Converters\ConvertMergeCSV.cs" />
+    <Compile Include="NC\AbstractToolpathConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -165,9 +163,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NCToolBox\NCToolBox\NCToolBox.csproj">
-      <Project>{ffc7c098-015b-1e83-90bc-95ca2305ba74}</Project>
-      <Name>NCToolBox</Name>
+    <ProjectReference Include="..\..\MachKit\MachKit.CSharp\MachKit.CSharp.csproj">
+      <Project>{dafdd848-394f-69c0-00ad-d40712aee3be}</Project>
+      <Name>MachKit.CSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
